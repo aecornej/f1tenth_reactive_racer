@@ -30,6 +30,8 @@ class ReactiveFollowerNode(Node):
 
         # --- 4. PARÁMETROS DE DIRECCIÓN ---
         self.Kp = 1.5                    # Ganancia Proporcional del volante. Mayor = reacción más agresiva.
+        self.steering_attenuation = 0.5  # Cuánto se reduce el Kp a máxima velocidad (0.0 a 1.0)
+        self.max_steering_angle = 0.54   # Límite físico del ángulo de giro (radianes)
 
         self.get_logger().info('Piloto Follow the Gap iniciado. Parámetros cargados correctamente.')
 
@@ -133,15 +135,14 @@ class ReactiveFollowerNode(Node):
         speed_factor = speed / self.max_speed 
         
         # Ajustamos el Kp dinámicamente. (Si vamos a tope, Kp baja a la mitad. Si vamos lento, Kp se mantiene alto)
-        dynamic_Kp = self.Kp * (1.0 - (0.5 * speed_factor)) 
+        dynamic_Kp = self.Kp * (1.0 - (self.steering_attenuation * speed_factor))
         
         raw_steering = dynamic_Kp * target_angle
 
         # 2. Saturación Física (Clipping)
         # El F1TENTH físicamente no puede girar las llantas más de ~0.54 radianes (aprox 31 grados).
         # Limitar matemáticamente la señal evita comportamientos inestables en el simulador.
-        max_steering_physical = 0.54 
-        steering_angle = max(-max_steering_physical, min(max_steering_physical, raw_steering))
+        steering_angle = max(-self.max_steering_angle, min(self.max_steering_angle, raw_steering))
 
         self.publish_drive(speed, steering_angle)
 
