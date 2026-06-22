@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-        'reactive_node = f1tenth_reactive_racer.reactive_follower:main'
+        'reactive_node = f1tenth_reactive_racer.reactive_follower:main',
+        'lap_timer_node = f1tenth_reactive_racer.lap_timer:main'
         ],
     },
 )
