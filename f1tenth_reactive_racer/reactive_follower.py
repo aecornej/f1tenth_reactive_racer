@@ -16,24 +16,77 @@ class ReactiveFollowerNode(Node):
         # ==========================================
         
         # --- 1. PARÁMETROS DE PERCEPCIÓN ---
-        self.view_angle = 1.22           # Ángulo de visión frontal en radianes (~70 grados).
-        self.max_lidar_range = 10.0      # Distancia (metros) que se asume libre si el LiDAR devuelve 'inf'.
+        # Rol: Define cómo el robot ve e interpreta el mundo.
+        self.view_angle = 1.25           
+        # Unidad: Radianes (~70 grados a cada lado). Rango sugerido: 0.8 a 1.5.
+        # Si se aumenta: Ve más hacia los lados. Puede confundirse con aperturas laterales en rectas.
+        # Si se disminuye: Visión de túnel. Excelente en rectas, pero ciego al entrar a curvas cerradas.
+        
+        self.max_lidar_range = 8.0       
+        # Unidad: Metros. Rango sugerido: 3.0 a 10.0.
+        # Rol: Distancia que asume como "libre" cuando el LiDAR devuelve un valor infinito o error.
+        # Si se aumenta: Considera pasillos largos como muy seguros y acelera a fondo.
+        # Si se disminuye: Comportamiento más conservador y cauteloso ante huecos desconocidos.
 
         # --- 2. PARÁMETROS DE SEGURIDAD ---
-        self.bubble_size = 20            # Cantidad de rayos a hacer "0" alrededor del obstáculo (ancho del chasis).
-        self.failsafe_dist = 0.5         # Distancia mínima de seguridad (metros) si el sensor falla en el hueco.
+        # Rol: Evitan colisiones directas inflando los obstáculos.
+        self.bubble_size = 18            
+        # Unidad: Número de rayos del sensor. Rango sugerido: 10 a 30.
+        # Si se aumenta: El robot se aleja más de las paredes (más seguro, pero hace los giros más abiertos).
+        # Si se disminuye: El robot pasa rozando el vértice de la curva (trayectoria más rápida, pero muy riesgoso).
+        
+        self.failsafe_dist = 0.8         
+        # Unidad: Metros. Rango sugerido: 0.5 a 1.5.
+        # Rol: Distancia objetivo de emergencia si el algoritmo falla temporalmente en medir el hueco.
 
         # --- 3. PARÁMETROS DE VELOCIDAD ---
-        self.max_speed = 4.0             # Velocidad máxima en rectas largas (m/s).
-        self.min_speed = 1.5             # Velocidad mínima al tomar curvas o sortear obstáculos (m/s).
-        self.braking_distance = 3.0      # Distancia (metros) a la que el robot empieza a reducir la velocidad.
+        # Rol: Determinan la aceleración y los puntos de frenada.
+        self.max_speed = 3.5             
+        # Unidad: Metros por segundo (m/s). Rango sugerido: 3.0 a 6.0.
+        # Si se aumenta: Menor tiempo por vuelta en rectas, pero requiere un Control PD muy bien sintonizado para no chocar.
+        
+        self.min_speed = 1.2             
+        # Unidad: m/s. Rango sugerido: 0.5 a 2.0.
+        # Rol: Velocidad mínima de tránsito garantizada en medio de curvas muy cerradas o evasión extrema.
+        
+        self.braking_distance = 4.0      
+        # Unidad: Metros. Rango sugerido: 2.0 a 7.0.
+        # Si se aumenta: Frena con mucha anticipación. Es más suave y estable, pero pierdes tiempo valioso.
+        # Si se disminuye: Frenada de competencia (apurada). Si es muy bajo, la inercia sacará al auto de la pista.
 
-        # --- 4. PARÁMETROS DE DIRECCIÓN ---
-        self.Kp = 1.5                    # Ganancia Proporcional del volante. Mayor = reacción más agresiva.
-        self.steering_attenuation = 0.5  # Cuánto se reduce el Kp a máxima velocidad (0.0 a 1.0)
-        self.max_steering_angle = 0.54   # Límite físico del ángulo de giro (radianes)
+        # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
+        # Rol: Manejan la agresividad, anticipación y estabilidad del volante.
+        self.Kp = 1.4                    
+        # Ganancia Proporcional. Rango sugerido: 1.0 a 3.0.
+        # Rol: La fuerza bruta con la que el volante gira hacia el objetivo.
+        # Si se aumenta: Reacción mucho más rápida e inmediata.
+        # Si es excesivo: El auto entra en resonancia y zigzaguea violentamente.
+        
+        # Constante k de agresividad de la curva (puedes jugar con valores entre 2.0 y 5.0)
+        self.k_exp = 3.0
+        
+        self.Kd = 0.6                    
+        # Ganancia Derivativa. Rango sugerido: 0.1 a 1.5.
+        # Rol: "Amortiguador" predictivo. Reacciona a los cambios bruscos de la pista.
+        # Si se aumenta: Frena el zigzagueo del Kp y ayuda a meter la "nariz" en la curva una fracción de segundo antes.
+        # Si es excesivo: El auto se vuelve rígido, tembloroso y resiste los giros.
+        
+        self.steering_attenuation = 0.5  
+        # Factor de atenuación. Rango sugerido: 0.2 a 0.8 (Representa un porcentaje).
+        # Rol: Reduce el valor del Kp únicamente cuando el auto va a máxima velocidad en rectas.
+        # Si se aumenta: El volante se vuelve menos sensible a alta velocidad, garantizando trayectoria recta.
+        
+        self.max_steering_angle = 0.50   
+        # Unidad: Radianes (~31 grados).
+        # Rol: Límite físico inamovible. NO superar este valor o las matemáticas del simulador perderán fidelidad.
 
-        self.get_logger().info('Piloto Follow the Gap iniciado. Parámetros cargados correctamente.')
+        # --- VARIABLES DE MEMORIA DEL CONTROLADOR ---
+        # Necesarias para calcular la derivada con respecto al tiempo
+        self.prev_error = 0.0
+        # self.get_clock().now().nanoseconds / 1e9 nos entrega el tiempo en segundos
+        self.last_time = self.get_clock().now().nanoseconds / 1e9
+
+        self.get_logger().info('Piloto Follow the Gap PD iniciado. Parámetros cargados correctamente.')
 
     def scan_callback(self, msg):
         angle_min = msg.angle_min
@@ -45,43 +98,38 @@ class ReactiveFollowerNode(Node):
         processed_ranges = []
         for r in msg.ranges:
             if math.isinf(r) or math.isnan(r):
-                processed_ranges.append(self.max_lidar_range) # Usamos el parámetro de rango máximo
+                processed_ranges.append(self.max_lidar_range)
             else:
                 processed_ranges.append(r)
 
-        # Calcular los índices de la matriz que corresponden a nuestra visión frontal
         start_idx = int((-self.view_angle - angle_min) / angle_inc)
         end_idx = int((self.view_angle - angle_min) / angle_inc)
 
-        # Validar límites para evitar errores de índice
         start_idx = max(0, start_idx)
         end_idx = min(len(processed_ranges) - 1, end_idx)
 
-        # "Cegamos" temporalmente los láseres laterales y traseros poniéndolos a 0
         for i in range(len(processed_ranges)):
             if i < start_idx or i > end_idx:
-                processed_ranges[i] = 0.0
+                processed_ranges[i] = 0.05
 
         # ----------------------------------------------------
-        # 2. BURBUJA DE SEGURIDAD (Inflar el obstáculo inminente)
+        # 2. BURBUJA DE SEGURIDAD
         # ----------------------------------------------------
         min_dist = float('inf')
         closest_idx = start_idx
         
-        # Encontrar el punto más cercano en nuestro cono frontal
         for i in range(start_idx, end_idx + 1):
             if processed_ranges[i] > 0.0 and processed_ranges[i] < min_dist:
                 min_dist = processed_ranges[i]
                 closest_idx = i
 
-        # Crear la burbuja haciendo 0 a los rayos vecinos usando el parámetro bubble_size
         b_start = max(0, closest_idx - self.bubble_size)
         b_end = min(len(processed_ranges) - 1, closest_idx + self.bubble_size)
         for i in range(b_start, b_end + 1):
             processed_ranges[i] = 0.0
 
         # ----------------------------------------------------
-        # 3. PLANIFICACIÓN: Encontrar el Gap (hueco) más grande
+        # 3. PLANIFICACIÓN: Encontrar el Gap
         # ----------------------------------------------------
         max_gap_length = 0
         max_gap_start = 0
@@ -103,45 +151,55 @@ class ReactiveFollowerNode(Node):
                 current_gap_start = -1
                 current_gap_length = 0
 
-        # Revisión final por si el hueco termina al borde del arreglo
         if current_gap_length > max_gap_length:
             max_gap_start = current_gap_start
             max_gap_end = end_idx
 
         # ----------------------------------------------------
-        # 4. CONTROL: Apuntar al Gap y ajustar velocidad
+        # 4. CONTROL PD: Apuntar al Gap y ajustar velocidad
         # ----------------------------------------------------
-        # Apuntamos al centro matemático del hueco libre
         target_idx = int((max_gap_start + max_gap_end) / 2)
         target_angle = angle_min + (target_idx * angle_inc)
 
-        # Control PD (Proporcional simple) usando Kp
-        steering_angle = self.Kp * target_angle
+        # Cálculo de la Derivada (dError / dt) usando el reloj de ROS 2
+        current_time = self.get_clock().now().nanoseconds / 1e9
+        dt = current_time - self.last_time
+        
+        # Prevenir división por cero, especialmente en el primer callback
+        if dt <= 0.0:
+            dt = 0.01
 
-        # Velocidad Dinámica usando los parámetros personalizables
+        # El error en nuestro sistema reactivo es el ángulo hacia donde queremos apuntar
+        error = target_angle
+        
+        # Qué tan violento fue el cambio de dirección del hueco respecto al ciclo anterior
+        derivative = (error - self.prev_error) / dt
+
+        # Guardar valores para el siguiente ciclo
+        self.prev_error = error
+        self.last_time = current_time
+
+        # Perfil Cinemático de Velocidad (Formula exponencial normalizada)
         target_dist = processed_ranges[target_idx] if processed_ranges[target_idx] > 0 else self.failsafe_dist
         
         if target_dist >= self.braking_distance:
             speed = self.max_speed
         else:
-            # Perfil Cinemático (Raíz Cuadrada) para frenado de carreras
             dist_ratio = target_dist / self.braking_distance
-            speed = self.min_speed + ((self.max_speed - self.min_speed) * math.sqrt(dist_ratio))
+            numerador = math.exp(self.k_exp * dist_ratio) - 1.0
+            denominador = math.exp(self.k_exp) - 1.0
+            exp_factor = numerador / denominador
+            speed = self.min_speed + ((self.max_speed - self.min_speed) * exp_factor)
 
-        # --- OPTIMIZACIÓN DE DIRECCIÓN ---
+        # --- OPTIMIZACIÓN DE DIRECCIÓN CON SEÑAL PD ---
         
-        # 1. Atenuación por velocidad: El Kp base se reduce si vamos muy rápido
-        # Usamos (speed / self.max_speed) para saber qué porcentaje del acelerador estamos usando
         speed_factor = speed / self.max_speed 
+        dynamic_Kp = self.Kp * (1.0 - (self.steering_attenuation * speed_factor)) 
         
-        # Ajustamos el Kp dinámicamente. (Si vamos a tope, Kp baja a la mitad. Si vamos lento, Kp se mantiene alto)
-        dynamic_Kp = self.Kp * (1.0 - (self.steering_attenuation * speed_factor))
-        
-        raw_steering = dynamic_Kp * target_angle
+        # Ecuación central del Control Proporcional-Derivativo
+        raw_steering = (dynamic_Kp * error) + (self.Kd * derivative)
 
-        # 2. Saturación Física (Clipping)
-        # El F1TENTH físicamente no puede girar las llantas más de ~0.54 radianes (aprox 31 grados).
-        # Limitar matemáticamente la señal evita comportamientos inestables en el simulador.
+        # Saturación Física (Clipping)
         steering_angle = max(-self.max_steering_angle, min(self.max_steering_angle, raw_steering))
 
         self.publish_drive(speed, steering_angle)
