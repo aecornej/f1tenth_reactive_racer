@@ -17,7 +17,7 @@ class ReactiveFollowerNode(Node):
         
         # --- 1. PARÁMETROS DE PERCEPCIÓN ---
         # Rol: Define cómo el robot ve e interpreta el mundo.
-        self.view_angle = 1.25           
+        self.view_angle = 1.3           
         # Unidad: Radianes (~70 grados a cada lado). Rango sugerido: 0.8 a 1.5.
         # Si se aumenta: Ve más hacia los lados. Puede confundirse con aperturas laterales en rectas.
         # Si se disminuye: Visión de túnel. Excelente en rectas, pero ciego al entrar a curvas cerradas.
@@ -30,7 +30,7 @@ class ReactiveFollowerNode(Node):
 
         # --- 2. PARÁMETROS DE SEGURIDAD ---
         # Rol: Evitan colisiones directas inflando los obstáculos.
-        self.bubble_size = 18            
+        self.bubble_size = 2            
         # Unidad: Número de rayos del sensor. Rango sugerido: 10 a 30.
         # Si se aumenta: El robot se aleja más de las paredes (más seguro, pero hace los giros más abiertos).
         # Si se disminuye: El robot pasa rozando el vértice de la curva (trayectoria más rápida, pero muy riesgoso).
@@ -41,43 +41,45 @@ class ReactiveFollowerNode(Node):
 
         # --- 3. PARÁMETROS DE VELOCIDAD ---
         # Rol: Determinan la aceleración y los puntos de frenada.
-        self.max_speed = 3.5             
+        self.max_speed = 5.0             
         # Unidad: Metros por segundo (m/s). Rango sugerido: 3.0 a 6.0.
         # Si se aumenta: Menor tiempo por vuelta en rectas, pero requiere un Control PD muy bien sintonizado para no chocar.
         
-        self.min_speed = 1.5             
+        self.min_speed = 2.0             
         # Unidad: m/s. Rango sugerido: 0.5 a 2.0.
         # Rol: Velocidad mínima de tránsito garantizada en medio de curvas muy cerradas o evasión extrema.
         
-        self.braking_distance = 4.5      
+        self.braking_distance = 6.0      
         # Unidad: Metros. Rango sugerido: 2.0 a 7.0.
         # Si se aumenta: Frena con mucha anticipación. Es más suave y estable, pero pierdes tiempo valioso.
         # Si se disminuye: Frenada de competencia (apurada). Si es muy bajo, la inercia sacará al auto de la pista.
 
         # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
         # Rol: Manejan la agresividad, anticipación y estabilidad del volante.
-        self.Kp = 1.8                    
+        self.Kp = 2.5                    
         # Ganancia Proporcional. Rango sugerido: 1.0 a 3.0.
         # Rol: La fuerza bruta con la que el volante gira hacia el objetivo.
         # Si se aumenta: Reacción mucho más rápida e inmediata.
         # Si es excesivo: El auto entra en resonancia y zigzaguea violentamente.
         
-        # Constante k de agresividad de la curva (puedes jugar con valores entre 2.0 y 5.0)
-        self.k_exp = 5.0
+        # Constante exponencial para la velocidad (mayor agresividad en en cambio de velocidad en curvas)
+        self.k_vel = 2.0
+        # Constante exponencial para Kp (mayor agresividad en en cambio de dirección en curvas)
+        self.k_kp = 8.0
         
-        self.Kd = 0.5                    
+        self.Kd = 0.6                    
         # Ganancia Derivativa. Rango sugerido: 0.1 a 1.5.
         # Rol: "Amortiguador" predictivo. Reacciona a los cambios bruscos de la pista.
         # Si se aumenta: Frena el zigzagueo del Kp y ayuda a meter la "nariz" en la curva una fracción de segundo antes.
         # Si es excesivo: El auto se vuelve rígido, tembloroso y resiste los giros.
         
-        self.steering_attenuation = 0.45  
+        self.steering_attenuation = 0.2  
         # Factor de atenuación. Rango sugerido: 0.2 a 0.8 (Representa un porcentaje).
         # Rol: Reduce el valor del Kp únicamente cuando el auto va a máxima velocidad en rectas.
         # Si se aumenta: El volante se vuelve menos sensible a alta velocidad, garantizando trayectoria recta.
         
-        self.max_steering_angle = 0.55   
-        # Unidad: Radianes (~31 grados).
+        self.max_steering_angle = 0.8   
+        # Unidad: Radianes (con un limite de 1.066 radianes (~61 grados)).
         # Rol: Límite físico inamovible. NO superar este valor o las matemáticas del simulador perderán fidelidad.
 
         # --- VARIABLES DE MEMORIA DEL CONTROLADOR ---
@@ -184,25 +186,29 @@ class ReactiveFollowerNode(Node):
         
         if target_dist >= self.braking_distance:
             speed = self.max_speed
+            exp_factor_kp = 1.0  # Máxima atenuación porque estamos lejos
         else:
             dist_ratio = target_dist / self.braking_distance
-            numerador = math.exp(self.k_exp * dist_ratio) - 1.0
-            denominador = math.exp(self.k_exp) - 1.0
-            exp_factor = numerador / denominador
-            speed = self.min_speed + ((self.max_speed - self.min_speed) * exp_factor)
+            # Dinámica de Velocidad (speed)
+            exp_factor_vel = (math.exp(self.k_vel * dist_ratio) - 1.0) / (math.exp(self.k_vel) - 1.0)
+            speed = self.min_speed + ((self.max_speed - self.min_speed) * exp_factor_vel)
+            
+            # Dinámica de Dirección (Kp)
+            exp_factor_kp = (math.exp(self.k_kp * dist_ratio) - 1.0) / (math.exp(self.k_kp) - 1.0)
 
         # --- OPTIMIZACIÓN DE DIRECCIÓN CON SEÑAL PD ---
         
-        speed_factor = speed / self.max_speed 
-        dynamic_Kp = self.Kp * (1.0 - (self.steering_attenuation * speed_factor)) 
+        dynamic_Kp = self.Kp * (1.0 - (self.steering_attenuation * exp_factor_kp))
+        dynamic_Kd = self.Kd * (1.0 - (self.steering_attenuation * exp_factor_kp))
         
         # Ecuación central del Control Proporcional-Derivativo
-        raw_steering = (dynamic_Kp * error) + (self.Kd * derivative)
+        raw_steering = (dynamic_Kp * error) + (dynamic_Kd * derivative)
 
         # Saturación Física (Clipping)
-        steering_angle = max(-self.max_steering_angle, min(self.max_steering_angle, raw_steering))
+        #steering_angle = max(-self.max_steering_angle, min(self.max_steering_angle, raw_steering))
 
-        self.publish_drive(speed, steering_angle)
+        #self.publish_drive(speed, steering_angle)
+        self.publish_drive(speed, raw_steering)
 
     def publish_drive(self, speed, steering):
         msg = AckermannDriveStamped()
