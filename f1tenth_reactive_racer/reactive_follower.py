@@ -45,38 +45,38 @@ class ReactiveFollowerNode(Node):
         # Unidad: Metros por segundo (m/s). Rango sugerido: 3.0 a 6.0.
         # Si se aumenta: Menor tiempo por vuelta en rectas, pero requiere un Control PD muy bien sintonizado para no chocar.
         
-        self.min_speed = 1.2             
+        self.min_speed = 1.5             
         # Unidad: m/s. Rango sugerido: 0.5 a 2.0.
         # Rol: Velocidad mínima de tránsito garantizada en medio de curvas muy cerradas o evasión extrema.
         
-        self.braking_distance = 4.0      
+        self.braking_distance = 4.5      
         # Unidad: Metros. Rango sugerido: 2.0 a 7.0.
         # Si se aumenta: Frena con mucha anticipación. Es más suave y estable, pero pierdes tiempo valioso.
         # Si se disminuye: Frenada de competencia (apurada). Si es muy bajo, la inercia sacará al auto de la pista.
 
         # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
         # Rol: Manejan la agresividad, anticipación y estabilidad del volante.
-        self.Kp = 1.4                    
+        self.Kp = 1.8                    
         # Ganancia Proporcional. Rango sugerido: 1.0 a 3.0.
         # Rol: La fuerza bruta con la que el volante gira hacia el objetivo.
         # Si se aumenta: Reacción mucho más rápida e inmediata.
         # Si es excesivo: El auto entra en resonancia y zigzaguea violentamente.
         
         # Constante k de agresividad de la curva (puedes jugar con valores entre 2.0 y 5.0)
-        self.k_exp = 3.0
+        self.k_exp = 5.0
         
-        self.Kd = 0.6                    
+        self.Kd = 0.5                    
         # Ganancia Derivativa. Rango sugerido: 0.1 a 1.5.
         # Rol: "Amortiguador" predictivo. Reacciona a los cambios bruscos de la pista.
         # Si se aumenta: Frena el zigzagueo del Kp y ayuda a meter la "nariz" en la curva una fracción de segundo antes.
         # Si es excesivo: El auto se vuelve rígido, tembloroso y resiste los giros.
         
-        self.steering_attenuation = 0.5  
+        self.steering_attenuation = 0.45  
         # Factor de atenuación. Rango sugerido: 0.2 a 0.8 (Representa un porcentaje).
         # Rol: Reduce el valor del Kp únicamente cuando el auto va a máxima velocidad en rectas.
         # Si se aumenta: El volante se vuelve menos sensible a alta velocidad, garantizando trayectoria recta.
         
-        self.max_steering_angle = 0.50   
+        self.max_steering_angle = 0.55   
         # Unidad: Radianes (~31 grados).
         # Rol: Límite físico inamovible. NO superar este valor o las matemáticas del simulador perderán fidelidad.
 
