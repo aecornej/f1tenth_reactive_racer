@@ -13,8 +13,9 @@ El algoritmo principal se basa en la técnica **Follow the Gap (Disparity Extend
 4. **Control de Dirección y Velocidad:** Utiliza un controlador Proporcional para apuntar la dirección hacia el centro del Gap, calculando un perfil de velocidad dinámico basado en la profundidad de la brecha.
 
 ## 📂 Estructura del Código
-El núcleo del proyecto reside en un único script optimizado para baja latencia:
+El núcleo del proyecto reside en dos único script optimizados:
 * `reactive_follower.py`: Nodo de ROS 2 que se suscribe al tópico `/scan`, procesa la matriz de distancias y publica comandos de tipo `AckermannDriveStamped` en el tópico `/drive`. Contiene parámetros de sintonización agrupados (Tuning Panel) para ajustar el ángulo de visión, la velocidad cinemática y la agresividad del volante (Kp).
+* `lap_timer.py`: Nodo juez de carrera que se suscribe al tópico `/odom` para rastrear la posición del vehículo, detectando el inicio y fin de cada vuelta para contabilizar el total y registrar los tiempos en segundos.
 
 ## 🚀 Instrucciones de Ejecución
 Para compilar y ejecutar este controlador en el simulador oficial de F1TENTH, sigue estos pasos:
@@ -47,4 +48,13 @@ ros2 topic pub --once /initialpose geometry_msgs/msg/PoseWithCovarianceStamped "
 ros2 run f1tenth_reactive_racer reactive_node
 ```
 
+**4. Ejecutar el Juez de Carrera (Terminal 3)**
+```bash
+source /opt/ros/humble/setup.bash
+cd ~/F1Tenth_ws
+source install/setup.bash
+
+# Iniciar el cronometro y contador de vueltas
+ros2 run f1tenth_reactive_racer lap_timer_node
+```
 
