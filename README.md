@@ -31,7 +31,7 @@ source install/setup.bash
 source /opt/ros/humble/setup.bash
 cd ~/F1Tenth_ws
 source install/setup.bash
-ros2 launch f1tenth_gym_ros gym_bridge.launch.py
+ros2 launch f1tenth_gym_ros gym_bridge_launch.py
 ```
 
 **3. Posicionar el Vehículo y Ejecutar el Controlador (Terminal 2)**
