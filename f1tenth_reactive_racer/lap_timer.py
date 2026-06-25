@@ -9,7 +9,7 @@ class LapTimerNode(Node):
     def __init__(self):
         super().__init__('lap_timer_node')
         # Nos suscribimos a la odometría para saber la posición exacta
-        self.subscription = self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
+        self.subscription = self.create_subscription(Odometry, '/ego_racecar/odom', self.odom_callback, 10)
 
         # Coordenadas exactas donde teletransportamos el auto en la pista Budapest
         self.start_x = -12.311

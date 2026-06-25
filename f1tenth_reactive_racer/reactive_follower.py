@@ -32,14 +32,14 @@ class ReactiveFollowerNode(Node):
         # Si se aumenta: El robot se aleja más de las paredes (más seguro, pero hace los giros más abiertos).
         # Si se disminuye: El robot pasa rozando el vértice de la curva (trayectoria más rápida, pero muy riesgoso).
         
-        self.failsafe_dist = 0.8         
+        self.failsafe_dist = 0.9         
         # Distancia objetivo de emergencia si el algoritmo falla temporalmente en medir el hueco.
 
         # --- 3. PARÁMETROS DE VELOCIDAD --- Determinan la aceleración y los puntos de frenada.
-        self.braking_distance_vel = 5.0  
+        self.braking_distance_vel = 4.4
     	# Distancia (metros) mirando al HUECO para empezar a reducir la velocidad.
         
-        self.max_speed = 5.5
+        self.max_speed = 6.5
         # Si se aumenta: Menor tiempo por vuelta en rectas, pero requiere un Control PD muy bien sintonizado para no chocar.
         
         self.min_speed = 2.0             
@@ -47,16 +47,16 @@ class ReactiveFollowerNode(Node):
         
 
         # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) --- Manejan la agresividad, anticipación y estabilidad del volante.
-        self.braking_distance_kp = 2.8   
+        self.braking_distance_kp = 2.65
     	# NUEVO: Distancia (metros) mirando al MURO FRONTAL para liberar el Kp y Kd. 
     	# Mantenerlo menor que braking_distance_vel evita que gire demasiado pronto.
         
         
-        self.Kp = 2.5           # Fuerza bruta con la que el volante gira hacia el objetivo. Si es excesivo: El auto zigzaguea violentamente.
+        self.Kp = 2.2           # Fuerza bruta con la que el volante gira hacia el objetivo. Si es excesivo: El auto zigzaguea violentamente.
         self.k_vel = 2.0	# Constante exponencial para la velocidad (mayor agresividad en en cambio de velocidad en curvas)
         self.k_kp = 8.0		# Constante exponencial para Kp (mayor agresividad en en cambio de dirección en curvas)
-        self.Kd = 0.7           # "Amortiguador". Reacciona a los cambios bruscos de la pista. Aumenta para frenar el zigzagueo del Kp
-        self.steering_attenuation = 0.3  # (porcentaje). Reduce el valor del Kp únicamente cuando el auto va en rectas.
+        self.Kd = 1.0           # "Amortiguador". Reacciona a los cambios bruscos de la pista. Aumenta para frenar el zigzagueo del Kp
+        self.steering_attenuation = 0.35  # (porcentaje). Reduce el valor del Kp únicamente cuando el auto va en rectas.
         
         self.max_steering_angle = 0.9   
         # Unidad: Radianes (con un limite de 1.066 radianes (~61 grados)).
@@ -212,10 +212,10 @@ class ReactiveFollowerNode(Node):
         raw_steering = (dynamic_Kp * error) + (dynamic_Kd * derivative)
 
         # Saturación Física (Clipping)
-        #steering_angle = max(-self.max_steering_angle, min(self.max_steering_angle, raw_steering))
+        steering_angle = max(-self.max_steering_angle, min(self.max_steering_angle, raw_steering))
 
-        #self.publish_drive(speed, steering_angle)
-        self.publish_drive(speed, raw_steering)
+        self.publish_drive(speed, steering_angle)
+        #self.publish_drive(speed, raw_steering)
 
     def publish_drive(self, speed, steering):
         msg = AckermannDriveStamped()

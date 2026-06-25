@@ -35,7 +35,7 @@ source install/setup.bash
 ros2 launch f1tenth_gym_ros gym_bridge_launch.py
 ```
 
-**3. Posicionar el Vehículo y Ejecutar el Controlador (Terminal 2)**
+**3. Posicionar el Vehículo y Ejecutar el Juez de Carrera (Terminal 2)**
 ```bash
 source /opt/ros/humble/setup.bash
 cd ~/F1Tenth_ws
@@ -44,17 +44,17 @@ source install/setup.bash
 # Teletransporte a la línea de salida
 ros2 topic pub --once /initialpose geometry_msgs/msg/PoseWithCovarianceStamped "{header: {frame_id: 'map'}, pose: {pose: {position: {x: -12.311, y: 9.941, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: -0.330, w: 0.944}}}}"
 
-# Iniciar el algoritmo Follow the Gap
-ros2 run f1tenth_reactive_racer reactive_node
+# Iniciar el cronometro y contador de vueltas
+ros2 run f1tenth_reactive_racer lap_timer_node
 ```
 
-**4. Ejecutar el Juez de Carrera (Terminal 3)**
+**4. Ejecutar el Controlador (Terminal 3)**
 ```bash
 source /opt/ros/humble/setup.bash
 cd ~/F1Tenth_ws
 source install/setup.bash
 
-# Iniciar el cronometro y contador de vueltas
-ros2 run f1tenth_reactive_racer lap_timer_node
+# Iniciar el algoritmo Follow the Gap
+ros2 run f1tenth_reactive_racer reactive_node
 ```
 
