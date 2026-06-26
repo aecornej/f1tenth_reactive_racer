@@ -1,23 +1,28 @@
 # F1TENTH Reactive Racer - Budapest Track
 
 **Autor:** Andrew Emmanuel Cornejo Ramirez
-**Pistas de Evaluación:** Budapest (y evaluación con obstáculos dinámicos/estáticos).
+**Pistas de Evaluación:** Budapest.
 
-Este repositorio contiene la implementación de un controlador reactivo para la competencia autónoma F1TENTH en ROS 2.
+Este repositorio contiene la implementación de un controlador reactivo para la competencia autónoma F1TENTH en ROS 2. El objetivo principal es completar 10 vueltas consecutivas sin colisiones en el menor tiempo posible.
 
 ![Mapa de Budapest](img/map_Budapest.png)
 
 ## 📘 Descripción del Enfoque Utilizado
-El algoritmo principal se basa en la técnica **Follow the Gap (Disparity Extender)**. El controlador es puramente reactivo, lo que significa que no depende de mapas globales o algoritmos de ruteo como A*. Su proceso de toma de decisiones en tiempo real consta de:
-1. **Limpieza del LiDAR:** Filtra valores infinitos o nulos del escáner láser.
-2. **Burbuja de Seguridad:** Detecta el obstáculo más inminente e "infla" su tamaño forzando a cero los rayos láser adyacentes, protegiendo así el ancho físico del chasis del vehículo.
-3. **Identificación de Brechas:** Localiza la secuencia más amplia de espacio libre (el "Gap").
-4. **Control de Dirección y Velocidad:** Utiliza un controlador Proporcional para apuntar la dirección hacia el centro del Gap, calculando un perfil de velocidad dinámico basado en la profundidad de la brecha.
+El algoritmo principal ha evolucionado de un simple **Follow the Gap** a una arquitectura de carreras avanzada con **Percepción Dividida (Split-Perception)** y Control PD Dinámico. Al ser puramente reactivo, no depende de mapas globales, procesando la toma de decisiones en tiempo real a través de los siguientes pasos:
+1. **Limpieza del LiDAR:** Filtra valores infinitos o nulos del escáner láser, limitando la visión útil a un máximo de 30 metros para evitar falsos positivos en rectas largas.
+2. **Burbuja de Seguridad:** Detecta el obstáculo inminente más cercano e "infla" su tamaño forzando a cero los rayos láser adyacentes (`bubble_size = 3`), obligando al algoritmo a trazar trayectorias que protegen el chasis del vehículo.
+3. **Identificación de Brechas:** Localiza la secuencia más amplia de espacio libre (el "Gap") para determinar la dirección general de escape.
+4. **Percepción Dividida (Split-Perception):** El robot separa su atención en dos objetivos distintos:
+
+* **Visión Periférica (Velocidad):** Evalúa la profundidad del hueco (Gap) para mantener el acelerador a fondo (hasta 7.0 m/s), reduciendo la velocidad de forma exponencial solo cuando el objetivo está a menos de 4.4 metros.
+
+* **Visión Frontal (Dirección):** Un escáner central estrecho (0.40 radianes) vigila exclusivamente la distancia hacia el muro frontal para calcular el momento exacto de giro.
+5. **Control PD Dinámico Exponencial:** Utiliza un controlador Proporcional-Derivativo para la dirección. Las ganancias __Kp__ y __Kd__ se mantienen atenuadas en rectas para brindar estabilidad, y se liberan mediante una curva matemática exponencial normalizada solo cuando el muro frontal cruza el umbral crítico de 2.7 metros. Esto fuerza al vehículo a ejecutar un giro de carreras estilo "Late Apex" (Vértice tardío).
 
 ## 📂 Estructura del Código
 El núcleo del proyecto reside en dos único script optimizados:
-* `reactive_follower.py`: Nodo de ROS 2 que se suscribe al tópico `/scan`, procesa la matriz de distancias y publica comandos de tipo `AckermannDriveStamped` en el tópico `/drive`. Contiene parámetros de sintonización agrupados (Tuning Panel) para ajustar el ángulo de visión, la velocidad cinemática y la agresividad del volante (Kp).
-* `lap_timer.py`: Nodo juez de carrera que se suscribe al tópico `/odom` para rastrear la posición del vehículo, detectando el inicio y fin de cada vuelta para contabilizar el total y registrar los tiempos en segundos.
+* `reactive_follower.py`: Nodo de ROS 2 que se suscribe al tópico `/scan`, procesa la matriz de distancias y publica comandos de tipo `AckermannDriveStamped` en el tópico `/drive`. Contiene un "Panel de Control y Tuning" con parámetros de percepción, seguridad, cinemática de frenado exponencial y agresividad del volante.
+* `lap_timer.py`: Juez de carrera autónomo que certifica las 10 vueltas requeridas. Se suscribe a la odometría (`/ego_racecar/odom`) utilizando el perfil `qos_profile_sensor_data` para garantizar la conexión. Este script extrae la marca de tiempo nativa del motor de físicas del simulador (`msg.header.stamp`), autocalibra la línea de meta dinámicamente e implementa un margen de seguridad de 5.0 metros para evitar falsos conteos de vueltas.
 
 ## 🚀 Instrucciones de Ejecución
 Para compilar y ejecutar este controlador en el simulador oficial de F1TENTH, sigue estos pasos:
