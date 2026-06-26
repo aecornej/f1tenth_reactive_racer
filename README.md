@@ -5,7 +5,9 @@
 
 Este repositorio contiene la implementación de un controlador reactivo para la competencia autónoma F1TENTH en ROS 2. El objetivo principal es completar 10 vueltas consecutivas sin colisiones en el menor tiempo posible.
 
-![Mapa de Budapest](img/map_Budapest.png)
+<div align="center">
+  <img src="img/map_Budapest.png" alt="Mapa de Budapest">
+</div>
 
 ## 📘 Descripción del Enfoque Utilizado
 El algoritmo principal ha evolucionado de un simple **Follow the Gap** a una arquitectura de carreras avanzada con **Percepción Dividida (Split-Perception)** y Control PD Dinámico. Al ser puramente reactivo, no depende de mapas globales, procesando la toma de decisiones en tiempo real a través de los siguientes pasos:
@@ -17,7 +19,7 @@ El algoritmo principal ha evolucionado de un simple **Follow the Gap** a una arq
 * **Visión Periférica (Velocidad):** Evalúa la profundidad del hueco (Gap) para mantener el acelerador a fondo (hasta 7.0 m/s), reduciendo la velocidad de forma exponencial solo cuando el objetivo está a menos de 4.4 metros.
 
 * **Visión Frontal (Dirección):** Un escáner central estrecho (0.40 radianes) vigila exclusivamente la distancia hacia el muro frontal para calcular el momento exacto de giro.
-5. **Control PD Dinámico Exponencial:** Utiliza un controlador Proporcional-Derivativo para la dirección. Las ganancias __Kp__ y __Kd__ se mantienen atenuadas en rectas para brindar estabilidad, y se liberan mediante una curva matemática exponencial normalizada solo cuando el muro frontal cruza el umbral crítico de 2.7 metros. Esto fuerza al vehículo a ejecutar un giro de carreras estilo "Late Apex" (Vértice tardío).
+5. **Control PD Dinámico Exponencial:** Utiliza un controlador Proporcional-Derivativo para la dirección. Las ganancias _Kp_ y _Kd_ se mantienen atenuadas en rectas para brindar estabilidad, y se liberan mediante una curva matemática exponencial normalizada solo cuando el muro frontal cruza el umbral crítico de 2.7 metros. Esto fuerza al vehículo a ejecutar un giro de carreras estilo "Late Apex" (Vértice tardío).
 
 ## 📂 Estructura del Código
 El núcleo del proyecto reside en dos único script optimizados:
@@ -41,7 +43,7 @@ cd ~/F1Tenth_ws
 source install/setup.bash
 ros2 launch f1tenth_gym_ros gym_bridge_launch.py
 ```
-![Simulador Inicializado](img/sim_inicialized.png)
+<img src="img/sim_inicialized.png" width="75%" alt="Simulador Inicializado">
 
 **3. Posicionar el Vehículo y Ejecutar el Juez de Carrera (Terminal 2)**
 ```bash
@@ -55,7 +57,7 @@ ros2 topic pub --once /initialpose geometry_msgs/msg/PoseWithCovarianceStamped "
 # Iniciar el cronometro y contador de vueltas
 ros2 run f1tenth_reactive_racer lap_timer_node
 ```
-![Posición y Reloj Inicializado](img/pos_and_clock_inicialized.png)
+<img src="img/pos_and_clock_inicialized.png" width="75%" alt="Posición y Reloj Inicializado">
 
 **4. Ejecutar el Controlador (Terminal 3)**
 ```bash
@@ -66,4 +68,6 @@ source install/setup.bash
 # Iniciar el algoritmo Follow the Gap
 ros2 run f1tenth_reactive_racer reactive_node
 ```
-![Control Inicializado](img/control_inizialized.png)
+
+<img src="img/control_inizialized.png" width="75%" alt="Control Inicializado">
+
