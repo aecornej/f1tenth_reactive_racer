@@ -20,26 +20,31 @@ class ReactiveFollowerNode(Node):
         # Si se aumenta: Ve más hacia los lados. Puede confundirse con aperturas laterales en rectas.
         # Si se disminuye: Visión de túnel. Excelente en rectas, pero ciego al entrar a curvas cerradas.
         
-        self.frontal_view_angle = 0.35
+        self.frontal_view_angle = 0.40
+        # Mide la distancia al muro que está justo frente al morro del auto, determinando cuándo liberar el Kp y Kd para dar el volantazo
+        # Si se aumenta: El sensor detectará las paredes laterales de las rectas largas como si fueran obstáculos frontales, provocando que el 
+        # volante se vuelva sensible y el auto tiemble antes de llegar a la curva.
+    	# Si se disminuye: Visión de láser. Podría ignorar un muro inminente si el auto no llega perfectamente alineado a la curva, lo que causaría 
+    	# una reacción tardía del volante y un posible choque.
         
-        self.max_lidar_range = 20       
+        self.max_lidar_range = 30       
         # Distancia que asume como "libre" cuando el LiDAR devuelve un valor infinito o error. Limite de 30 metros
         # Si se aumenta: Considera pasillos largos como muy seguros y acelera a fondo.
         # Si se disminuye: Comportamiento más conservador y cauteloso ante huecos desconocidos.
 
         # --- 2. PARÁMETROS DE SEGURIDAD --- Evitan colisiones directas inflando los obstáculos.
-        self.bubble_size = 2            
+        self.bubble_size = 3	# Solo valores enteros            
         # Si se aumenta: El robot se aleja más de las paredes (más seguro, pero hace los giros más abiertos).
         # Si se disminuye: El robot pasa rozando el vértice de la curva (trayectoria más rápida, pero muy riesgoso).
         
-        self.failsafe_dist = 0.9         
+        self.failsafe_dist = 1.0         
         # Distancia objetivo de emergencia si el algoritmo falla temporalmente en medir el hueco.
 
         # --- 3. PARÁMETROS DE VELOCIDAD --- Determinan la aceleración y los puntos de frenada.
         self.braking_distance_vel = 4.4
     	# Distancia (metros) mirando al HUECO para empezar a reducir la velocidad.
         
-        self.max_speed = 6.5
+        self.max_speed = 7.0
         # Si se aumenta: Menor tiempo por vuelta en rectas, pero requiere un Control PD muy bien sintonizado para no chocar.
         
         self.min_speed = 2.0             
@@ -47,14 +52,14 @@ class ReactiveFollowerNode(Node):
         
 
         # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) --- Manejan la agresividad, anticipación y estabilidad del volante.
-        self.braking_distance_kp = 2.65
+        self.braking_distance_kp = 2.7
     	# NUEVO: Distancia (metros) mirando al MURO FRONTAL para liberar el Kp y Kd. 
     	# Mantenerlo menor que braking_distance_vel evita que gire demasiado pronto.
         
         
-        self.Kp = 2.2           # Fuerza bruta con la que el volante gira hacia el objetivo. Si es excesivo: El auto zigzaguea violentamente.
-        self.k_vel = 2.0	# Constante exponencial para la velocidad (mayor agresividad en en cambio de velocidad en curvas)
-        self.k_kp = 8.0		# Constante exponencial para Kp (mayor agresividad en en cambio de dirección en curvas)
+        self.Kp = 2.22           # Fuerza bruta con la que el volante gira hacia el objetivo. Si es excesivo: El auto zigzaguea violentamente.
+        self.k_vel = 2.4	# Constante exponencial para la velocidad (mayor agresividad en en cambio de velocidad en curvas)
+        self.k_kp = 7.8		# Constante exponencial para Kp (mayor agresividad en en cambio de dirección en curvas)
         self.Kd = 1.0           # "Amortiguador". Reacciona a los cambios bruscos de la pista. Aumenta para frenar el zigzagueo del Kp
         self.steering_attenuation = 0.35  # (porcentaje). Reduce el valor del Kp únicamente cuando el auto va en rectas.
         
