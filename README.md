@@ -3,7 +3,9 @@
 **Autor:** Andrew Emmanuel Cornejo Ramirez
 **Pistas de Evaluación:** Budapest (y evaluación con obstáculos dinámicos/estáticos).
 
-Este repositorio contiene la implementación de un controlador reactivo para la competencia autónoma F1TENTH en ROS 2. 
+Este repositorio contiene la implementación de un controlador reactivo para la competencia autónoma F1TENTH en ROS 2.
+
+![Mapa de Budapest](img/map_Budapest.png)
 
 ## 📘 Descripción del Enfoque Utilizado
 El algoritmo principal se basa en la técnica **Follow the Gap (Disparity Extender)**. El controlador es puramente reactivo, lo que significa que no depende de mapas globales o algoritmos de ruteo como A*. Su proceso de toma de decisiones en tiempo real consta de:
@@ -34,6 +36,7 @@ cd ~/F1Tenth_ws
 source install/setup.bash
 ros2 launch f1tenth_gym_ros gym_bridge_launch.py
 ```
+![Simulador Inicializado](img/sim_inicialized.png)
 
 **3. Posicionar el Vehículo y Ejecutar el Juez de Carrera (Terminal 2)**
 ```bash
@@ -47,6 +50,7 @@ ros2 topic pub --once /initialpose geometry_msgs/msg/PoseWithCovarianceStamped "
 # Iniciar el cronometro y contador de vueltas
 ros2 run f1tenth_reactive_racer lap_timer_node
 ```
+![Posición y Reloj Inicializado](img/pos_and_clock_inicialized.png)
 
 **4. Ejecutar el Controlador (Terminal 3)**
 ```bash
@@ -57,4 +61,4 @@ source install/setup.bash
 # Iniciar el algoritmo Follow the Gap
 ros2 run f1tenth_reactive_racer reactive_node
 ```
-
+![Control Inicializado](img/control_inizialized.png)
