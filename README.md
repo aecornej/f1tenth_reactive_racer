@@ -27,16 +27,62 @@ El núcleo del proyecto reside en dos único script optimizados:
 * `lap_timer.py`: Juez de carrera autónomo que certifica las 10 vueltas requeridas. Se suscribe a la odometría (`/ego_racecar/odom`) utilizando el perfil `qos_profile_sensor_data` para garantizar la conexión. Este script extrae la marca de tiempo nativa del motor de físicas del simulador (`msg.header.stamp`), autocalibra la línea de meta dinámicamente e implementa un margen de seguridad de 5.0 metros para evitar falsos conteos de vueltas.
 
 ## 🚀 Instrucciones de Ejecución
-Para compilar y ejecutar este controlador en el simulador oficial de F1TENTH, sigue estos pasos:
+**NOTA IMPORTANTE:** Las siguientes instrucciones asumen el uso de ROS 2 Humble. Es fundamental reemplazar `tu_usuario` y `F1Tenth_ws` en las rutas con los nombres correspondientes a su usuario de Ubuntu y al nombre de su espacio de trabajo en su maquina local.
 
-**1. Compilar el paquete (Terminal 1)**
+**0. Configuración del Espacio de Trabajo**
+
+1. **Preparacion del Espacio de Trabajo y Descarga del Controlador**
+Si no cuenta con un espacio de trabajo previo, abra una terminal y ejecute los siguientes comandos linea por linea para crearlo y clonar el repositorio:
+
+```bash
+source /opt/ros/humble/setup.bash
+mkdir -p ~/F1Tenth_ws/src
+cd ~/F1Tenth_ws/src
+git clone https://github.com/aecornej/f1tenth_reactive_racer.git
+```
+(Nota: Si ya tiene su espacio de trabajo creado, simplemente navegue hasta su carpeta src con `cd ~/F1Tenth_ws/src` y ejecute unicamente el comando de `git clone`).
+
+2. **Instalacion de Dependencias**
+Verificar que el sistema tenga todas las dependencias requeridas instaladas. Ejecute lo siguiente desde la raiz de su espacio de trabajo:
+
 ```bash
 cd ~/F1Tenth_ws
-colcon build --packages-select f1tenth_reactive_racer
+sudo apt update
+rosdep update
+rosdep install -i --from-path src --rosdistro humble -y
+```
+
+**1. Configuración del Mapa**
+
+Antes de compilar, es estrictamente necesario configurar el simulador para que cargue la pista de Budapest.
+
+Primero, copia los archivos del mapa que vienen incluidos en este repositorio hacia la carpeta de mapas del simulador:
+
+```bash
+cp ~/F1Tenth_ws/src/f1tenth_reactive_racer/maps/Budapest_map.* ~/F1Tenth_ws/src/f1tenth_gym_ros/maps/
+```
+Luego, abre el archivo de configuración del simulador:
+
+```bash
+nano ~/F1Tenth_ws/src/f1tenth_gym_ros/config/sim.yaml
+```
+Busca la sección `# map parameters` y modifica la ruta absoluta en `map_path` para que apunte al nuevo mapa
+```bash
+# map parameters
+map_path: '/home/tu_usuario/F1Tenth_ws/src/f1tenth_gym_ros/maps/Budapest_map'
+map_img_ext: '.png'
+```
+Guarda los cambios `Ctrl + O`, `Enter` y cierra el editor `Ctrl + X`.
+
+
+**2. Compilar el paquete (Terminal 1)**
+```bash
+cd ~/F1Tenth_ws
+colcon build
 source install/setup.bash
 ```
 
-**2. Ejecutar el Simulador (Terminal 1)**
+**3. Ejecutar el Simulador (Terminal 1)**
 ```bash
 source /opt/ros/humble/setup.bash
 cd ~/F1Tenth_ws
@@ -45,7 +91,7 @@ ros2 launch f1tenth_gym_ros gym_bridge_launch.py
 ```
 <img src="img/sim_inicialized.png" width="75%" alt="Simulador Inicializado">
 
-**3. Posicionar el Vehículo y Ejecutar el Juez de Carrera (Terminal 2)**
+**4. Posicionar el Vehículo y Ejecutar el Juez de Carrera (Terminal 2)**
 ```bash
 source /opt/ros/humble/setup.bash
 cd ~/F1Tenth_ws
@@ -59,7 +105,7 @@ ros2 run f1tenth_reactive_racer lap_timer_node
 ```
 <img src="img/pos_and_clock_inicialized.png" width="75%" alt="Posición y Reloj Inicializado">
 
-**4. Ejecutar el Controlador (Terminal 3)**
+**5. Ejecutar el Controlador (Terminal 3)**
 ```bash
 source /opt/ros/humble/setup.bash
 cd ~/F1Tenth_ws
