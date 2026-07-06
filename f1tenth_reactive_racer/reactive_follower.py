@@ -21,20 +21,20 @@ class ReactiveFollowerNode(Node):
         self.max_lidar_range = 30.0
 
         # --- 2. PARÁMETROS DEL DISPARITY EXTENDER Y SEGURIDAD ---
-        self.car_radius = 0.4           # Radio físico + margen (0.25m evita roces protegiendo los pasillos estrechos del Escenario 2)
+        self.car_radius = 0.42           # Radio físico + margen (0.25m evita roces protegiendo los pasillos estrechos del Escenario 2)
         self.disparity_threshold = 0.35  # Detecta bordes abruptos (ideal para el salto de 0.5m a 2.3m del Escenario 3)
         self.failsafe_dist = 0.35        # Distancia de emergencia si la visión falla
 
         # --- 3. PARÁMETROS DE VELOCIDAD ---
-        self.max_speed = 5.0
-        self.min_speed = 1.5
-        self.braking_distance_vel = 6.0  # Empieza a frenar a 6 metros de la curva
+        self.max_speed = 8.0
+        self.min_speed = 1.4
+        self.braking_distance_vel = 4.2  # Empieza a frenar a 6 metros de la curva
 
         # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
         self.braking_distance_kp = 2.0
         self.Kp = 1.8
-        self.k_vel = 2.8
-        self.k_kp = 0.2 #7.0
+        self.k_vel = 3.0
+        self.k_kp = 0.2
         self.Kd = 0
         self.steering_attenuation = 0.5 #0.35
         self.max_steering_angle = 0.5
@@ -197,7 +197,10 @@ class ReactiveFollowerNode(Node):
             speed = self.max_speed
         else:
             dist_ratio_vel = target_dist / self.braking_distance_vel
-            exp_factor_vel = (math.exp(self.k_vel * dist_ratio_vel) - 1.0) / (math.exp(self.k_vel))
+            if self.k_vel == 0.0:
+                exp_factor_vel = dist_ratio_vel
+            else:
+                exp_factor_vel = (math.exp(self.k_vel * dist_ratio_vel) - 1.0) / (math.exp(self.k_vel) - 1.0)
             speed = self.min_speed + ((self.max_speed - self.min_speed) * exp_factor_vel)
 
         # B. DIRECCIÓN
@@ -205,7 +208,10 @@ class ReactiveFollowerNode(Node):
             exp_factor_kp = 1.0 
         else:
             dist_ratio_kp = frontal_dist / self.braking_distance_kp
-            exp_factor_kp = (math.exp(self.k_kp * dist_ratio_kp) - 1.0) / (math.exp(self.k_kp))
+            if self.k_kp == 0.0:
+                exp_factor_kp = dist_ratio_kp
+            else:
+                exp_factor_kp = (math.exp(self.k_kp * dist_ratio_kp) - 1.0) / (math.exp(self.k_kp) - 1.0)
 
         dynamic_Kp = self.Kp * (1.0 - (self.steering_attenuation * exp_factor_kp))
         dynamic_Kd = self.Kd * (1.0 - (self.steering_attenuation * exp_factor_kp))
