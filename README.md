@@ -107,27 +107,33 @@ pegue y guarde estos parámetros en el **Panel de Control** (lineas 14 al 41):
 
 ```python
         # ==========================================
-        # ⚙️ PANEL DE CONTROL Y TUNING (SIN OBSTÁCULOS)
+        # ⚙️ PANEL DE CONTROL Y TUNING
         # ==========================================
+        
+        # --- 1. PARÁMETROS DE PERCEPCIÓN GEOMÉTRICA ---
         self.view_angle = 1.3           
-        self.frontal_view_angle = 0.4    
+        self.frontal_view_angle = 0.4    # Cono frontal estrecho para medir muros inminentes sin asustarse con las paredes laterales
         self.max_lidar_range = 30.0
 
-        self.car_radius = 0.5           
-        self.disparity_threshold = 0.4  
-        self.failsafe_dist = 0.42        
+        # --- 2. PARÁMETROS DEL DISPARITY EXTENDER Y SEGURIDAD ---
+        self.car_radius = 0.5           # Radio físico + margen (0.35m evita roces protegiendo los pasillos estrechos del Escenario 2)
+        self.disparity_threshold = 0.4  # Detecta bordes abruptos (ideal para el salto de 0.5m a 2.3m del Escenario 3)
+        self.failsafe_dist = 0.42        # Distancia de emergencia si la visión falla
 
+        # --- 3. PARÁMETROS DE VELOCIDAD ---
         self.max_speed = 9.5
         self.min_speed = 1.1
-        self.braking_distance_vel = 5.8  
+        self.braking_distance_vel = 5.8  # Empieza a frenar a 6 metros de la curva
 
+        # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
         self.braking_distance_kp = 2.0
         self.Kp = 1.7
         self.k_vel = 1.8
         self.k_kp = 0.4
         self.Kd = 0.1
-        self.steering_attenuation = 0.48         
-        self.max_steering_angle = 0.6	         
+        self.steering_attenuation = 0.48         # Atenuación del Kp en rectas
+        self.max_steering_angle = 0.6	         # Máx 1.066 radianes
+	         
 ```
 
 **Ejecución:**
@@ -175,27 +181,33 @@ map_path: '/home/tu_usuario/F1Tenth_ws/src/f1tenth_gym_ros/maps/Budapest_map_obs
 
 ```python
         # ==========================================
-        # ⚙️ PANEL DE CONTROL Y TUNING (CON OBSTÁCULOS)
+        # ⚙️ PANEL DE CONTROL Y TUNING
         # ==========================================
+        
+        # --- 1. PARÁMETROS DE PERCEPCIÓN GEOMÉTRICA ---
         self.view_angle = 1.3           
-        self.frontal_view_angle = 0.4    
+        self.frontal_view_angle = 0.4    # Cono frontal estrecho para medir muros inminentes sin asustarse con las paredes laterales
         self.max_lidar_range = 30.0
 
-        self.car_radius = 0.42           
-        self.disparity_threshold = 0.4  
-        self.failsafe_dist = 0.42  
+        # --- 2. PARÁMETROS DEL DISPARITY EXTENDER Y SEGURIDAD ---
+        self.car_radius = 0.42           # Radio físico + margen (0.35m evita roces protegiendo los pasillos estrechos del Escenario 2)
+        self.disparity_threshold = 0.4  # Detecta bordes abruptos (ideal para el salto de 0.5m a 2.3m del Escenario 3)
+        self.failsafe_dist = 0.42        # Distancia de emergencia si la visión falla
 
+        # --- 3. PARÁMETROS DE VELOCIDAD ---
         self.max_speed = 8.4
         self.min_speed = 1.2
-        self.braking_distance_vel = 6.0  
+        self.braking_distance_vel = 6.0  # Empieza a frenar a 6 metros de la curva
 
+        # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
         self.braking_distance_kp = 2.0
         self.Kp = 1.5
         self.k_vel = 1.9
         self.k_kp = 0.2
         self.Kd = 0.1
-        self.steering_attenuation = 0.48         
-        self.max_steering_angle = 0.4	         
+        self.steering_attenuation = 0.48         # Atenuación del Kp en rectas
+        self.max_steering_angle = 0.4	         # Máx 1.066 radianes
+	         
 ```
 
 **Ejecución:**
@@ -246,27 +258,33 @@ ros2 run f1tenth_reactive_racer reactive_node
 
 ```python
         # ==========================================
-        # ⚙️ PANEL DE CONTROL Y TUNING (NPC DINÁMICOS)
+        # ⚙️ PANEL DE CONTROL Y TUNING
         # ==========================================
+        
+        # --- 1. PARÁMETROS DE PERCEPCIÓN GEOMÉTRICA ---
         self.view_angle = 1.3           
-        self.frontal_view_angle = 0.4    
+        self.frontal_view_angle = 0.4    # Cono frontal estrecho para medir muros inminentes sin asustarse con las paredes laterales
         self.max_lidar_range = 30.0
 
-        self.car_radius = 0.42           
-        self.disparity_threshold = 0.4  
-        self.failsafe_dist = 0.42        
+        # --- 2. PARÁMETROS DEL DISPARITY EXTENDER Y SEGURIDAD ---
+        self.car_radius = 0.42           # Radio físico + margen (0.35m evita roces protegiendo los pasillos estrechos del Escenario 2)
+        self.disparity_threshold = 0.4  # Detecta bordes abruptos (ideal para el salto de 0.5m a 2.3m del Escenario 3)
+        self.failsafe_dist = 0.42        # Distancia de emergencia si la visión falla
 
+        # --- 3. PARÁMETROS DE VELOCIDAD ---
         self.max_speed = 8.4
         self.min_speed = 1.2
-        self.braking_distance_vel = 6.0  
+        self.braking_distance_vel = 6.0  # Empieza a frenar a 6 metros de la curva
 
+        # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
         self.braking_distance_kp = 2.0
         self.Kp = 1.5
         self.k_vel = 2.2
         self.k_kp = 0.4
         self.Kd = 0.1
-        self.steering_attenuation = 0.48         
-        self.max_steering_angle = 0.4	         
+        self.steering_attenuation = 0.48         # Atenuación del Kp en rectas
+        self.max_steering_angle = 0.4	         # Máx 1.066 radianes
+         
 ```
 
 **Ejecución:**
