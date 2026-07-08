@@ -1,0 +1,238 @@
+Parámetros sin colisiones - tiempo:47.93s
+        # ==========================================
+        # ⚙️ PANEL DE CONTROL Y TUNING
+        # ==========================================
+        
+        # --- 1. PARÁMETROS DE PERCEPCIÓN GEOMÉTRICA ---
+        self.view_angle = 1.3           
+        self.frontal_view_angle = 0.4    # Cono frontal estrecho para medir muros inminentes sin asustarse con las paredes laterales
+        self.max_lidar_range = 30.0
+
+        # --- 2. PARÁMETROS DEL DISPARITY EXTENDER Y SEGURIDAD ---
+        self.car_radius = 0.42           # Radio físico + margen (0.35m evita roces protegiendo los pasillos estrechos del Escenario 2)
+        self.disparity_threshold = 0.4  # Detecta bordes abruptos (ideal para el salto de 0.5m a 2.3m del Escenario 3)
+        self.failsafe_dist = 0.42        # Distancia de emergencia si la visión falla
+
+        # --- 3. PARÁMETROS DE VELOCIDAD ---
+        self.max_speed = 8.4
+        self.min_speed = 1.2
+        self.braking_distance_vel = 6.0  # Empieza a frenar a 6 metros de la curva
+
+        # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
+        self.braking_distance_kp = 2.0
+        self.Kp = 1.5
+        self.k_vel = 1.9
+        self.k_kp = 0.2
+        self.Kd = 0.1
+        self.steering_attenuation = 0.48         # Atenuación del Kp en rectas
+        self.max_steering_angle = 0.4	         # Máx 1.066 radianes
+
+1meros Parámetros - tiempo: 48.6s - colisión 1er obst central en 6ta vuelta
+	# ==========================================
+        # ⚙️ PANEL DE CONTROL Y TUNING
+        # ==========================================
+        
+        # --- 1. PARÁMETROS DE PERCEPCIÓN GEOMÉTRICA ---
+        self.view_angle = 1.3           
+        self.frontal_view_angle = 0.4    # Cono frontal estrecho para medir muros inminentes sin asustarse con las paredes laterales
+        self.max_lidar_range = 30.0
+
+        # --- 2. PARÁMETROS DEL DISPARITY EXTENDER Y SEGURIDAD ---
+        self.car_radius = 0.42           # Radio físico + margen (0.25m evita roces protegiendo los pasillos estrechos del Escenario 2)
+        self.disparity_threshold = 0.35  # Detecta bordes abruptos (ideal para el salto de 0.5m a 2.3m del Escenario 3)
+        self.failsafe_dist = 0.35        # Distancia de emergencia si la visión falla
+
+        # --- 3. PARÁMETROS DE VELOCIDAD ---
+        self.max_speed = 8.0
+        self.min_speed = 1.4
+        self.braking_distance_vel = 4.2  # Empieza a frenar a 6 metros de la curva
+
+        # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
+        self.braking_distance_kp = 2.0
+        self.Kp = 1.8
+        self.k_vel = 3.0
+        self.k_kp = 0.2
+        self.Kd = 0
+        self.steering_attenuation = 0.5 #0.35
+        self.max_steering_angle = 0.5
+
+2dos Parámetros - tiempo: 47.35s - colisión primer obst central en la 8va vuelta
+        # ==========================================
+        # ⚙️ PANEL DE CONTROL Y TUNING
+        # ==========================================
+        
+        # --- 1. PARÁMETROS DE PERCEPCIÓN GEOMÉTRICA ---
+        self.view_angle = 1.3           
+        self.frontal_view_angle = 0.4    # Cono frontal estrecho para medir muros inminentes sin asustarse con las paredes laterales
+        self.max_lidar_range = 30.0
+
+        # --- 2. PARÁMETROS DEL DISPARITY EXTENDER Y SEGURIDAD ---
+        self.car_radius = 0.42           # Radio físico + margen (0.35m evita roces protegiendo los pasillos estrechos del Escenario 2)
+        self.disparity_threshold = 0.35  # Detecta bordes abruptos (ideal para el salto de 0.5m a 2.3m del Escenario 3)
+        self.failsafe_dist = 0.35        # Distancia de emergencia si la visión falla
+
+        # --- 3. PARÁMETROS DE VELOCIDAD ---
+        self.max_speed = 8.5
+        self.min_speed = 1.2
+        self.braking_distance_vel = 6.0  # Empieza a frenar a 6 metros de la curva
+
+        # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
+        self.braking_distance_kp = 2.1
+        self.Kp = 1.8
+        self.k_vel = 1.8
+        self.k_kp = 0.2
+        self.Kd = 0.05
+        self.steering_attenuation = 0.49         # Atenuación del Kp en rectas
+        self.max_steering_angle = 0.5	         # Máx 1.066 radianes
+
+3er Parámetros - tiempo: 47.55s - colisión última curva en la 7ma vuelta
+        # ==========================================
+        # ⚙️ PANEL DE CONTROL Y TUNING
+        # ==========================================
+        
+        # --- 1. PARÁMETROS DE PERCEPCIÓN GEOMÉTRICA ---
+        self.view_angle = 1.3           
+        self.frontal_view_angle = 0.4    # Cono frontal estrecho para medir muros inminentes sin asustarse con las paredes laterales
+        self.max_lidar_range = 30.0
+
+        # --- 2. PARÁMETROS DEL DISPARITY EXTENDER Y SEGURIDAD ---
+        self.car_radius = 0.42           # Radio físico + margen (0.25m evita roces protegiendo los pasillos estrechos del Escenario 2)
+        self.disparity_threshold = 0.35  # Detecta bordes abruptos (ideal para el salto de 0.5m a 2.3m del Escenario 3)
+        self.failsafe_dist = 0.35        # Distancia de emergencia si la visión falla
+
+        # --- 3. PARÁMETROS DE VELOCIDAD ---
+        self.max_speed = 8.2
+        self.min_speed = 1.5
+        self.braking_distance_vel = 4.5  # Empieza a frenar a 6 metros de la curva
+
+        # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
+        self.braking_distance_kp = 2.0
+        self.Kp = 1.8
+        self.k_vel = 4.0
+        self.k_kp = 0.2
+        self.Kd = 0
+        self.steering_attenuation = 0.5 #0.35
+        self.max_steering_angle = 0.5
+
+4tos parámetros - tiempo: 48.70s - colisión primer obst central en la segunda vuelta
+        # ==========================================
+        # ⚙️ PANEL DE CONTROL Y TUNING
+        # ==========================================
+        
+        # --- 1. PARÁMETROS DE PERCEPCIÓN GEOMÉTRICA ---
+        self.view_angle = 1.3           
+        self.frontal_view_angle = 0.4    # Cono frontal estrecho para medir muros inminentes sin asustarse con las paredes laterales
+        self.max_lidar_range = 30.0
+
+        # --- 2. PARÁMETROS DEL DISPARITY EXTENDER Y SEGURIDAD ---
+        self.car_radius = 0.42           # Radio físico + margen (0.25m evita roces protegiendo los pasillos estrechos del Escenario 2)
+        self.disparity_threshold = 0.35  # Detecta bordes abruptos (ideal para el salto de 0.5m a 2.3m del Escenario 3)
+        self.failsafe_dist = 0.40        # Distancia de emergencia si la visión falla
+
+        # --- 3. PARÁMETROS DE VELOCIDAD ---
+        self.max_speed = 8.1
+        self.min_speed = 1.4
+        self.braking_distance_vel = 4.5  # Empieza a frenar a 6 metros de la curva
+
+        # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
+        self.braking_distance_kp = 2.0
+        self.Kp = 1.81
+        self.k_vel = 3.8
+        self.k_kp = 0.2
+        self.Kd = 1.0
+        self.steering_attenuation = 0.48 #0.35
+        self.max_steering_angle = 0.5
+
+5tos parámetros - Tiempo: 49.82s ~50s - colision última curva en 4ta vuelta
+        # ==========================================
+        # ⚙️ PANEL DE CONTROL Y TUNING
+        # ==========================================
+        
+        # --- 1. PARÁMETROS DE PERCEPCIÓN GEOMÉTRICA ---
+        self.view_angle = 1.3           
+        self.frontal_view_angle = 0.4    # Cono frontal estrecho para medir muros inminentes sin asustarse con las paredes laterales
+        self.max_lidar_range = 30.0
+
+        # --- 2. PARÁMETROS DEL DISPARITY EXTENDER Y SEGURIDAD ---
+        self.car_radius = 0.42           # Radio físico + margen (0.25m evita roces protegiendo los pasillos estrechos del Escenario 2)
+        self.disparity_threshold = 0.35  # Detecta bordes abruptos (ideal para el salto de 0.5m a 2.3m del Escenario 3)
+        self.failsafe_dist = 0.40        # Distancia de emergencia si la visión falla
+
+        # --- 3. PARÁMETROS DE VELOCIDAD ---
+        self.max_speed = 7.8
+        self.min_speed = 1.6
+        self.braking_distance_vel = 4.5  # Empieza a frenar a 6 metros de la curva
+
+        # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
+        self.braking_distance_kp = 2.0
+        self.Kp = 1.81
+        self.k_vel = 3.8
+        self.k_kp = 0.2
+        self.Kd = 1.0
+        self.steering_attenuation = 0.48 #0.35
+        self.max_steering_angle = 0.5
+
+        # --- VARIABLES DE MEMORIA DEL CONTROLADOR ---
+        self.prev_error = 0.0
+        self.last_time = self.get_clock().now().nanoseconds / 1e9
+
+        self.get_logger().info('Piloto FTG + Disparity Extender PD iniciado.')
+
+6tos parámetros - tiempo: 48.7s - Colisión última curva en la 2da vuelta
+        # ==========================================
+        # ⚙️ PANEL DE CONTROL Y TUNING
+        # ==========================================
+        
+        # --- 1. PARÁMETROS DE PERCEPCIÓN GEOMÉTRICA ---
+        self.view_angle = 1.3           
+        self.frontal_view_angle = 0.4    # Cono frontal estrecho para medir muros inminentes sin asustarse con las paredes laterales
+        self.max_lidar_range = 30.0
+
+        # --- 2. PARÁMETROS DEL DISPARITY EXTENDER Y SEGURIDAD ---
+        self.car_radius = 0.42           # Radio físico + margen (0.25m evita roces protegiendo los pasillos estrechos del Escenario 2)
+        self.disparity_threshold = 0.35  # Detecta bordes abruptos (ideal para el salto de 0.5m a 2.3m del Escenario 3)
+        self.failsafe_dist = 0.40        # Distancia de emergencia si la visión falla
+
+        # --- 3. PARÁMETROS DE VELOCIDAD ---
+        self.max_speed = 8.0
+        self.min_speed = 1.5
+        self.braking_distance_vel = 4.6  # Empieza a frenar a n metros de la curva
+
+        # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
+        self.braking_distance_kp = 2.0
+        self.Kp = 1.81
+        self.k_vel = 3.8
+        self.k_kp = 0.2
+        self.Kd = 0.9
+        self.steering_attenuation = 0.48 #0.35
+        self.max_steering_angle = 0.6
+
+7tos parámetros - tiempo: 49.6s - colisión última curva en la 4ta vuelta
+        # ==========================================
+        # ⚙️ PANEL DE CONTROL Y TUNING
+        # ==========================================
+        
+        # --- 1. PARÁMETROS DE PERCEPCIÓN GEOMÉTRICA ---
+        self.view_angle = 1.3           
+        self.frontal_view_angle = 0.4    # Cono frontal estrecho para medir muros inminentes sin asustarse con las paredes laterales
+        self.max_lidar_range = 30.0
+
+        # --- 2. PARÁMETROS DEL DISPARITY EXTENDER Y SEGURIDAD ---
+        self.car_radius = 0.42           # Radio físico + margen (0.25m evita roces protegiendo los pasillos estrechos del Escenario 2)
+        self.disparity_threshold = 0.35  # Detecta bordes abruptos (ideal para el salto de 0.5m a 2.3m del Escenario 3)
+        self.failsafe_dist = 0.40        # Distancia de emergencia si la visión falla
+
+        # --- 3. PARÁMETROS DE VELOCIDAD ---
+        self.max_speed = 7.9
+        self.min_speed = 1.5
+        self.braking_distance_vel = 5.0  # Empieza a frenar a n metros de la curva
+
+        # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
+        self.braking_distance_kp = 2.0
+        self.Kp = 1.81
+        self.k_vel = 4.0
+        self.k_kp = 0.2
+        self.Kd = 0.9
+        self.steering_attenuation = 0.48 # Atenuación del Kp en rectas
+        self.max_steering_angle = 0.6   # Máx 1.066 radianes
+

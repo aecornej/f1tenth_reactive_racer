@@ -1,38 +1,57 @@
 # F1TENTH Reactive Racer - Budapest Track
 
 **Autor:** Andrew Emmanuel Cornejo Ramirez
-**Pistas de Evaluación:** Budapest.
+**Pista de Evaluación:** Budapest.
 
-Este repositorio contiene la implementación de un controlador reactivo para la competencia autónoma F1TENTH en ROS 2. El objetivo principal es completar 10 vueltas consecutivas sin colisiones en el menor tiempo posible.
+Este repositorio contiene la implementación de un controlador reactivo para la competencia autónoma F1TENTH en ROS 2. El proyecto se divide en diferentes pruebas de validación, con el objetivo principal de completar 10 vueltas consecutivas sin colisiones en el menor tiempo posible, tanto en pista libre como evadiendo obstáculos estáticos y dinámicos (NPCs).
 
 <div align="center">
   <img src="img/map_Budapest.png" alt="Mapa de Budapest">
 </div>
 
+---
+
+## 🛑 Prerrequisitos
+
+Para poder ejecutar este proyecto desde cero, es indispensable contar con el siguiente software instalado en una máquina con Ubuntu 22.04:
+
+1. **ROS 2 Humble:** Framework principal de robótica. 
+   * [Guía de instalación oficial de ROS 2 Humble](https://docs.ros.org/en/humble/index.html)
+2. **Simulador F1TENTH:** Entorno oficial de simulación física.
+   * [Repositorio y tutorial de instalación del simulador](https://github.com/widegonz/F1Tenth-Repository)
+
+---
+
 ## 📘 Descripción del Enfoque Utilizado
-El algoritmo principal ha evolucionado de un simple **Follow the Gap** a una arquitectura de carreras avanzada con **Percepción Dividida (Split-Perception)** y Control PD Dinámico. Al ser puramente reactivo, no depende de mapas globales, procesando la toma de decisiones en tiempo real a través de los siguientes pasos:
+
+El algoritmo principal utiliza una arquitectura de carreras avanzada con **Percepción Dividida (Split-Perception)** y Control PD Dinámico para lograr una evasión de obstáculos estable. Al ser puramente reactivo, no depende de mapas globales, procesando la toma de decisiones en tiempo real a través de los siguientes pasos:
+
 1. **Limpieza del LiDAR:** Filtra valores infinitos o nulos del escáner láser, limitando la visión útil a un máximo de 30 metros para evitar falsos positivos en rectas largas.
 2. **Burbuja de Seguridad:** Detecta el obstáculo inminente más cercano e "infla" su tamaño forzando a cero los rayos láser adyacentes (`bubble_size = 3`), obligando al algoritmo a trazar trayectorias que protegen el chasis del vehículo.
 3. **Identificación de Brechas:** Localiza la secuencia más amplia de espacio libre (el "Gap") para determinar la dirección general de escape.
 4. **Percepción Dividida (Split-Perception):** El robot separa su atención en dos objetivos distintos:
+   * **Visión Periférica (Velocidad y Estabilidad):** Evalúa la amplitud y forma del hueco (Gap) para seleccionar la ruta de evasión más estable, manteniendo el acelerador a fondo y reduciendo la velocidad de forma exponencial solo cuando el objetivo está a menos de 4.4 metros.
+   * **Visión Frontal (Dirección):** Un escáner central estrecho (0.40 radianes) vigila exclusivamente la distancia hacia el muro frontal para calcular el momento exacto de giro.
+5. **Control PD Dinámico Exponencial:** Utiliza un controlador Proporcional-Derivativo para la dirección. Las ganancias _Kp_ y _Kd_ se mantienen atenuadas en rectas para brindar estabilidad, y se liberan mediante una curva matemática exponencial normalizada solo cuando el muro frontal cruza el umbral crítico, forzando un giro estilo "Late Apex".
 
-* **Visión Periférica (Velocidad):** Evalúa la profundidad del hueco (Gap) para mantener el acelerador a fondo (hasta 7.0 m/s), reduciendo la velocidad de forma exponencial solo cuando el objetivo está a menos de 4.4 metros.
-
-* **Visión Frontal (Dirección):** Un escáner central estrecho (0.40 radianes) vigila exclusivamente la distancia hacia el muro frontal para calcular el momento exacto de giro.
-5. **Control PD Dinámico Exponencial:** Utiliza un controlador Proporcional-Derivativo para la dirección. Las ganancias _Kp_ y _Kd_ se mantienen atenuadas en rectas para brindar estabilidad, y se liberan mediante una curva matemática exponencial normalizada solo cuando el muro frontal cruza el umbral crítico de 2.7 metros. Esto fuerza al vehículo a ejecutar un giro de carreras estilo "Late Apex" (Vértice tardío).
+---
 
 ## 📂 Estructura del Código
-El núcleo del proyecto reside en dos único script optimizados:
-* `reactive_follower.py`: Nodo de ROS 2 que se suscribe al tópico `/scan`, procesa la matriz de distancias y publica comandos de tipo `AckermannDriveStamped` en el tópico `/drive`. Contiene un "Panel de Control y Tuning" con parámetros de percepción, seguridad, cinemática de frenado exponencial y agresividad del volante.
-* `lap_timer.py`: Juez de carrera autónomo que certifica las 10 vueltas requeridas. Se suscribe a la odometría (`/ego_racecar/odom`) utilizando el perfil `qos_profile_sensor_data` para garantizar la conexión. Este script extrae la marca de tiempo nativa del motor de físicas del simulador (`msg.header.stamp`), autocalibra la línea de meta dinámicamente e implementa un margen de seguridad de 5.0 metros para evitar falsos conteos de vueltas.
 
-## 🚀 Instrucciones de Ejecución
-**NOTA IMPORTANTE:** Las siguientes instrucciones asumen el uso de ROS 2 Humble. Es fundamental reemplazar `tu_usuario` y `F1Tenth_ws` en las rutas con los nombres correspondientes a su usuario de Ubuntu y al nombre de su espacio de trabajo en su maquina local.
+El núcleo del proyecto reside en los siguientes scripts dentro del paquete `f1tenth_reactive_racer`:
 
-**0. Configuración del Espacio de Trabajo**
+* `reactive_follower.py`: Nodo principal de ROS 2 que procesa la matriz de distancias y publica comandos de conducción para el vehículo principal. Contiene un **"Panel de Control y Tuning"** en su interior para modificar la agresividad y percepción según el escenario.
+* `opp_reactive_follower.py`: Nodo secundario configurado con velocidades reducidas (~20%) e independizado en los tópicos `/opp_scan` y `/opp_drive` para actuar como un obstáculo dinámico o NPC en la pista.
+* `lap_timer.py`: Juez de carrera autónomo que certifica las 10 vueltas requeridas. Extrae la marca de tiempo nativa del simulador, autocalibra la línea de meta dinámicamente e implementa un margen de seguridad de 5.0 metros para evitar falsos conteos.
 
-1. **Preparacion del Espacio de Trabajo y Descarga del Controlador**
-Si no cuenta con un espacio de trabajo previo, abra una terminal y ejecute los siguientes comandos linea por linea para crearlo y clonar el repositorio:
+---
+
+## 🚀 Instrucciones de Ejecución (General)
+
+**NOTA IMPORTANTE:** Las siguientes instrucciones asumen el uso de ROS 2 Humble. Es fundamental reemplazar `tu_usuario` y `F1Tenth_ws` en las rutas con los nombres correspondientes a su usuario de Ubuntu y al nombre de su espacio de trabajo.
+
+### 0. Preparación del Espacio de Trabajo
+Si no cuenta con el controlador descargado, abra una terminal y clone el repositorio en su espacio de trabajo de F1TENTH:
 
 ```bash
 source /opt/ros/humble/setup.bash
@@ -40,10 +59,8 @@ mkdir -p ~/F1Tenth_ws/src
 cd ~/F1Tenth_ws/src
 git clone https://github.com/aecornej/f1tenth_reactive_racer.git
 ```
-(Nota: Si ya tiene su espacio de trabajo creado, simplemente navegue hasta su carpeta src con `cd ~/F1Tenth_ws/src` y ejecute unicamente el comando de `git clone`).
 
-2. **Instalacion de Dependencias**
-Verificar que el sistema tenga todas las dependencias requeridas instaladas. Ejecute lo siguiente desde la raiz de su espacio de trabajo:
+Luego, instale las dependencias necesarias:
 
 ```bash
 cd ~/F1Tenth_ws
@@ -52,19 +69,26 @@ rosdep update
 rosdep install -i --from-path src --rosdistro humble -y
 ```
 
-**1. Configuración del Mapa**
-
-Antes de compilar, es estrictamente necesario configurar el simulador para que cargue la pista de Budapest.
-
-Primero, copia los archivos del mapa que vienen incluidos en este repositorio hacia la carpeta de mapas del simulador:
+### 1. Copiar los Mapas al Simulador
+Copie los mapas de Budapest (estándar y con obstáculos) hacia la carpeta oficial del simulador:
 
 ```bash
-cp ~/F1Tenth_ws/src/f1tenth_reactive_racer/maps/Budapest_map.* ~/F1Tenth_ws/src/f1tenth_gym_ros/maps/
+cp ~/F1Tenth_ws/src/f1tenth_reactive_racer/maps/Budapest_map* ~/F1Tenth_ws/src/f1tenth_gym_ros/maps/
 ```
-Luego, abre el archivo de configuración del simulador:
+
+---
+
+## 🏁 Pruebas de Competencia
+
+Para cada una de las siguientes pruebas, asegúrese de editar primero el archivo `sim.yaml` del simulador y el archivo `reactive_follower.py` de este paquete según las indicaciones proporcionadas para cada escenario.
+
+### Escenario 1: Pista Libre (10 Vueltas)
+
+**Configuración:**
+1. Abra `nano ~/F1Tenth_ws/src/f1tenth_gym_ros/config/sim.yaml` y asegúrese de que el mapa sea el estándar:
 
 ```bash
-nano ~/F1Tenth_ws/src/f1tenth_gym_ros/config/sim.yaml
+map_path: '/home/tu_usuario/F1Tenth_ws/src/f1tenth_gym_ros/maps/Budapest_map'
 ```
 Busca la sección `# map parameters` y modifica la ruta absoluta en `map_path` para que apunte al nuevo mapa
 ```bash
@@ -74,46 +98,210 @@ map_img_ext: '.png'
 ```
 Guarda los cambios `Ctrl + O`, `Enter` y cierra el editor `Ctrl + X`.
 
-
-**2. Compilar el paquete (Terminal 1)**
+2. Establecer los parámetros para el escenario 1:
+Abra el archivo del controlador principal
 ```bash
+gedit ~/F1Tenth_ws/src/f1tenth_reactive_racer/f1tenth_reactive_racer/reactive_follower.py
+```
+pegue y guarde estos parámetros en el **Panel de Control** (lineas 14 al 41):
+
+```python
+        # ==========================================
+        # ⚙️ PANEL DE CONTROL Y TUNING (SIN OBSTÁCULOS)
+        # ==========================================
+        self.view_angle = 1.3           
+        self.frontal_view_angle = 0.4    
+        self.max_lidar_range = 30.0
+
+        self.car_radius = 0.5           
+        self.disparity_threshold = 0.4  
+        self.failsafe_dist = 0.42        
+
+        self.max_speed = 9.5
+        self.min_speed = 1.1
+        self.braking_distance_vel = 5.8  
+
+        self.braking_distance_kp = 2.0
+        self.Kp = 1.7
+        self.k_vel = 1.8
+        self.k_kp = 0.4
+        self.Kd = 0.1
+        self.steering_attenuation = 0.48         
+        self.max_steering_angle = 0.6	         
+```
+
+**Ejecución:**
+1. **Terminal 1 (Compilar y Lanzar Simulador):**
+
+```bash
+source /opt/ros/humble/setup.bash
 cd ~/F1Tenth_ws
 colcon build
 source install/setup.bash
-```
-
-**3. Ejecutar el Simulador (Terminal 1)**
-```bash
-source /opt/ros/humble/setup.bash
-cd ~/F1Tenth_ws
-source install/setup.bash
 ros2 launch f1tenth_gym_ros gym_bridge_launch.py
 ```
-<img src="img/sim_inicialized.png" width="75%" alt="Simulador Inicializado">
 
-**4. Posicionar el Vehículo y Ejecutar el Juez de Carrera (Terminal 2)**
+2. **Terminal 2 (Juez):**
+
 ```bash
 source /opt/ros/humble/setup.bash
 cd ~/F1Tenth_ws
 source install/setup.bash
-
-# Teletransporte a la línea de salida
 ros2 topic pub --once /initialpose geometry_msgs/msg/PoseWithCovarianceStamped "{header: {frame_id: 'map'}, pose: {pose: {position: {x: -12.311, y: 9.941, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: -0.330, w: 0.944}}}}"
-
-# Iniciar el cronometro y contador de vueltas
 ros2 run f1tenth_reactive_racer lap_timer_node
 ```
-<img src="img/pos_and_clock_inicialized.png" width="75%" alt="Posición y Reloj Inicializado">
 
-**5. Ejecutar el Controlador (Terminal 3)**
+3. **Terminal 3 (Controlador):**
+
 ```bash
 source /opt/ros/humble/setup.bash
 cd ~/F1Tenth_ws
 source install/setup.bash
-
-# Iniciar el algoritmo Follow the Gap
 ros2 run f1tenth_reactive_racer reactive_node
 ```
 
-<img src="img/control_inizialized.png" width="75%" alt="Control Inicializado">
+---
 
+### Escenario 2: Pista con 5 Obstáculos Estáticos
+
+**Configuración:**
+1. Abra `sim.yaml` y cambie el mapa al que contiene obstáculos:
+
+```bash
+map_path: '/home/tu_usuario/F1Tenth_ws/src/f1tenth_gym_ros/maps/Budapest_map_obst'
+```
+
+2. Abra `reactive_follower.py` y actualice los parámetros para mayor agilidad:
+
+```python
+        # ==========================================
+        # ⚙️ PANEL DE CONTROL Y TUNING (CON OBSTÁCULOS)
+        # ==========================================
+        self.view_angle = 1.3           
+        self.frontal_view_angle = 0.4    
+        self.max_lidar_range = 30.0
+
+        self.car_radius = 0.42           
+        self.disparity_threshold = 0.4  
+        self.failsafe_dist = 0.42  
+
+        self.max_speed = 8.4
+        self.min_speed = 1.2
+        self.braking_distance_vel = 6.0  
+
+        self.braking_distance_kp = 2.0
+        self.Kp = 1.5
+        self.k_vel = 1.9
+        self.k_kp = 0.2
+        self.Kd = 0.1
+        self.steering_attenuation = 0.48         
+        self.max_steering_angle = 0.4	         
+```
+
+**Ejecución:**
+1. **Terminal 1 (Compilar y Lanzar Simulador):**
+
+```bash
+source /opt/ros/humble/setup.bash
+cd ~/F1Tenth_ws
+colcon build
+source install/setup.bash
+ros2 launch f1tenth_gym_ros gym_bridge_launch.py
+```
+
+2. **Terminal 2 (Juez):**
+
+```bash
+source /opt/ros/humble/setup.bash
+cd ~/F1Tenth_ws
+source install/setup.bash
+ros2 topic pub --once /initialpose geometry_msgs/msg/PoseWithCovarianceStamped "{header: {frame_id: 'map'}, pose: {pose: {position: {x: -12.311, y: 9.941, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: -0.330, w: 0.944}}}}"
+ros2 run f1tenth_reactive_racer lap_timer_node
+```
+
+3. **Terminal 3 (Controlador):**
+
+```bash
+source /opt/ros/humble/setup.bash
+cd ~/F1Tenth_ws
+source install/setup.bash
+ros2 run f1tenth_reactive_racer reactive_node
+```
+
+---
+
+### Escenario 3: Pista con 2 Obstáculos Dinámicos (NPCs)
+
+**Configuración:**
+1. Abra `sim.yaml`, use la pista de su preferencia y asegúrese de habilitar los vehículos oponentes en la configuración del simulador oficial.
+```bash
+# map parameters
+    map_path: '/home/tu_usuario/F1Tenth_ws/src/f1tenth_gym_ros/maps/Budapest_map'
+    map_img_ext: '.png'
+
+    # opponent parameters
+    num_agent: 2
+```
+2. Abra `reactive_follower.py` y aplique los parámetros de máxima respuesta:
+
+```python
+        # ==========================================
+        # ⚙️ PANEL DE CONTROL Y TUNING (NPC DINÁMICOS)
+        # ==========================================
+        self.view_angle = 1.3           
+        self.frontal_view_angle = 0.4    
+        self.max_lidar_range = 30.0
+
+        self.car_radius = 0.42           
+        self.disparity_threshold = 0.4  
+        self.failsafe_dist = 0.42        
+
+        self.max_speed = 8.4
+        self.min_speed = 1.2
+        self.braking_distance_vel = 6.0  
+
+        self.braking_distance_kp = 2.0
+        self.Kp = 1.5
+        self.k_vel = 2.2
+        self.k_kp = 0.4
+        self.Kd = 0.1
+        self.steering_attenuation = 0.48         
+        self.max_steering_angle = 0.4	         
+```
+
+**Ejecución:**
+1. **Terminal 1 (Compilar y Lanzar Simulador):**
+
+```bash
+source /opt/ros/humble/setup.bash
+cd ~/F1Tenth_ws
+colcon build
+source install/setup.bash
+ros2 launch f1tenth_gym_ros gym_bridge_launch.py
+```
+
+2. **Terminal 2 (Juez):**
+```bash
+source /opt/ros/humble/setup.bash
+cd ~/F1Tenth_ws
+source install/setup.bash
+ros2 topic pub --once /initialpose geometry_msgs/msg/PoseWithCovarianceStamped "{header: {frame_id: 'map'}, pose: {pose: {position: {x: -12.311, y: 9.941, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: -0.330, w: 0.944}}}}"
+ros2 run f1tenth_reactive_racer lap_timer_node
+```
+
+3. **Terminal 3 (NPCs Oponentes):**
+```bash
+source /opt/ros/humble/setup.bash
+cd ~/F1Tenth_ws
+source install/setup.bash
+ros2 run f1tenth_reactive_racer opp_reactive_node
+```
+
+4. **Terminal 4 (Controlador Principal):**
+
+```bash
+source /opt/ros/humble/setup.bash
+cd ~/F1Tenth_ws
+source install/setup.bash
+ros2 run f1tenth_reactive_racer reactive_node
+```
