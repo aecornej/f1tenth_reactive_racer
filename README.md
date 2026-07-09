@@ -170,6 +170,10 @@ ros2 run f1tenth_reactive_racer reactive_node
 
 ### Escenario 2: Pista con 5 Obstáculos Estáticos
 
+<div align="center">
+  <img src="maps/Budapest_map_obst.png" alt="Mapa de Budapest con obstáculos">
+</div>
+
 **Configuración:**
 1. Abra `sim.yaml` y cambie el mapa al que contiene obstáculos:
 
@@ -245,6 +249,10 @@ ros2 run f1tenth_reactive_racer reactive_node
 ---
 
 ### Escenario 3: Pista con 2 Obstáculos Dinámicos (NPCs)
+
+<div align="center">
+  <img src="img/map_Budapest_Opp.png" alt="Mapa de Budapest con oponente">
+</div>
 
 **Configuración:**
 1. Abra `sim.yaml`, use la pista de su preferencia y asegúrese de habilitar los vehículos oponentes, al igual que su posición inicial en la configuración del simulador oficial.
