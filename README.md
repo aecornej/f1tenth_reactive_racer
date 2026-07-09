@@ -146,7 +146,7 @@ colcon build
 source install/setup.bash
 ros2 launch f1tenth_gym_ros gym_bridge_launch.py
 ```
-
+<img src="img/sim_inicialized.png" width="75%" alt="Simulador Inicializado">
 2. **Terminal 2 (Juez):**
 
 ```bash
@@ -156,7 +156,7 @@ source install/setup.bash
 ros2 topic pub --once /initialpose geometry_msgs/msg/PoseWithCovarianceStamped "{header: {frame_id: 'map'}, pose: {pose: {position: {x: -12.311, y: 9.941, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: -0.330, w: 0.944}}}}"
 ros2 run f1tenth_reactive_racer lap_timer_node
 ```
-
+<img src="img/pos_and_clock_inicialized.png" width="75%" alt="Posición y Reloj Inicializado">
 3. **Terminal 3 (Controlador):**
 
 ```bash
@@ -165,7 +165,7 @@ cd ~/F1Tenth_ws
 source install/setup.bash
 ros2 run f1tenth_reactive_racer reactive_node
 ```
-
+<img src="img/control_inizialized.png" width="75%" alt="Control Inicializado">
 ---
 
 ### Escenario 2: Pista con 5 Obstáculos Estáticos
@@ -174,7 +174,9 @@ ros2 run f1tenth_reactive_racer reactive_node
 1. Abra `sim.yaml` y cambie el mapa al que contiene obstáculos:
 
 ```bash
-map_path: '/home/tu_usuario/F1Tenth_ws/src/f1tenth_gym_ros/maps/Budapest_map_obst'
+    # map parameters
+    map_path: '/home/andrew/F1Tenth_ws/src/f1tenth_gym_ros/maps/Budapest_map_obst'
+    map_img_ext: '.png'
 ```
 
 2. Abra `reactive_follower.py` y actualice los parámetros para mayor agilidad:
@@ -245,14 +247,25 @@ ros2 run f1tenth_reactive_racer reactive_node
 ### Escenario 3: Pista con 2 Obstáculos Dinámicos (NPCs)
 
 **Configuración:**
-1. Abra `sim.yaml`, use la pista de su preferencia y asegúrese de habilitar los vehículos oponentes en la configuración del simulador oficial.
+1. Abra `sim.yaml`, use la pista de su preferencia y asegúrese de habilitar los vehículos oponentes, al igual que su posición inicial en la configuración del simulador oficial.
 ```bash
-# map parameters
-    map_path: '/home/tu_usuario/F1Tenth_ws/src/f1tenth_gym_ros/maps/Budapest_map'
+    # map parameters
+    map_path: '/home/andrew/F1Tenth_ws/src/f1tenth_gym_ros/maps/Budapest_map'
     map_img_ext: '.png'
 
     # opponent parameters
     num_agent: 2
+
+    # ego starting pose on map
+    sx: 0.0
+    sy: 0.0
+    stheta: 0.0
+
+    # opp starting pose on map
+    sx1: 33.5
+    sy1: 1.85
+    stheta1: 0.78
+
 ```
 2. Abra `reactive_follower.py` y aplique los parámetros de máxima respuesta:
 

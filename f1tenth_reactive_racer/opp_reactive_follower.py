@@ -27,7 +27,7 @@ class OppReactiveFollowerNode(Node):
         self.failsafe_dist = 0.42        
 
         # 3. VELOCIDADES REDUCIDAS AL ~20%
-        self.max_speed = 4.0
+        self.max_speed = 5.0
         self.min_speed = 1.5
         self.braking_distance_vel = 4.0  
 

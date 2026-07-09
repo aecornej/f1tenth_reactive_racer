@@ -1,4 +1,4 @@
-Parámetros - Mapa sin Obstáculos - tiempo: 42.35s
+Parámetros - Mapa sin Obstáculos - tiempo: 42.34s
         # ==========================================
         # ⚙️ PANEL DE CONTROL Y TUNING
         # ==========================================
@@ -27,7 +27,7 @@ Parámetros - Mapa sin Obstáculos - tiempo: 42.35s
         self.steering_attenuation = 0.48         # Atenuación del Kp en rectas
         self.max_steering_angle = 0.6	         # Máx 1.066 radianes
 
-Parámetros - Mapa con obstáculos - tiempo: 47.93s
+Parámetros - Mapa con obstáculos - tiempo: 47.88s
         # ==========================================
         # ⚙️ PANEL DE CONTROL Y TUNING
         # ==========================================
@@ -56,7 +56,7 @@ Parámetros - Mapa con obstáculos - tiempo: 47.93s
         self.steering_attenuation = 0.48         # Atenuación del Kp en rectas
         self.max_steering_angle = 0.4	         # Máx 1.066 radianes
 
-Parámetros - Mapa con obstáculos + NPC - tiempo: 
+Parámetros - Mapa con obstáculos + NPC - tiempo: 48.04s
         # ==========================================
         # ⚙️ PANEL DE CONTROL Y TUNING
         # ==========================================
