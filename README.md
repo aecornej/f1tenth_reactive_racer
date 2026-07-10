@@ -167,8 +167,6 @@ ros2 run f1tenth_reactive_racer reactive_node
 ```
 <img src="img/control_inizialized.png" width="75%" alt="Control Inicializado">
 
-> 🎥 **Video de Evidencia:** Puedes verificar el desempeño en la pista libre visualizando el siguiente video: [Evidencia Pista Libre (x4)](Videos/EvidenciaCircuitoF1tenth_x4.mp4)
-O en su defecto, en el siguiente enlace: https://drive.google.com/drive/folders/1IwqtTJYY6gRoNsIEeE8Eppk4jxy3uuDi?usp=sharing
 
 ---
 
@@ -249,8 +247,6 @@ cd ~/F1Tenth_ws
 source install/setup.bash
 ros2 run f1tenth_reactive_racer reactive_node
 ```
-> 🎥 **Video de Evidencia:** Puedes verificar la evasión de los 5 obstáculos estáticos visualizando el siguiente video: [Evidencia Obstáculos Estáticos (x4)](Videos/CircuitCompletedObstX4.mp4)
-O en su defecto, en el siguiente enlace: https://drive.google.com/drive/folders/1IwqtTJYY6gRoNsIEeE8Eppk4jxy3uuDi?usp=sharing
 
 ---
 
@@ -351,5 +347,4 @@ source install/setup.bash
 ros2 run f1tenth_reactive_racer reactive_node
 ```
 
-> 🎥 **Video de Evidencia:** Puedes verificar el comportamiento evadiendo los obstáculos dinámicos visualizando el siguiente video: [Evidencia Obstáculos Dinámicos (x4)](Videos/CircuitCompletedOppX4.mp4)
-O en su defecto, en el siguiente enlace: https://drive.google.com/drive/folders/1IwqtTJYY6gRoNsIEeE8Eppk4jxy3uuDi?usp=sharing
+> 🎥 **Videos Demostrativos:** Puedes verificar el comportamiento del proyecto en el siguiente enlace: https://drive.google.com/drive/folders/1IwqtTJYY6gRoNsIEeE8Eppk4jxy3uuDi?usp=sharing

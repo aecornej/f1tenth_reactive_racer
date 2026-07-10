@@ -33,12 +33,12 @@ class ReactiveFollowerNode(Node):
         # --- 4. PARÁMETROS DE DIRECCIÓN (CONTROL PD) ---
         self.braking_distance_kp = 2.0
         self.Kp = 1.5
-        self.k_vel = 2.2
-        self.k_kp = 0.4
+        self.k_vel = 1.9
+        self.k_kp = 0.2
         self.Kd = 0.1
         self.steering_attenuation = 0.48         # Atenuación del Kp en rectas
         self.max_steering_angle = 0.4	         # Máx 1.066 radianes
-         	         
+        	         
         # --- VARIABLES DE MEMORIA DEL CONTROLADOR ---
         self.prev_error = 0.0
         self.last_time = self.get_clock().now().nanoseconds / 1e9
