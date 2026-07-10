@@ -166,6 +166,9 @@ source install/setup.bash
 ros2 run f1tenth_reactive_racer reactive_node
 ```
 <img src="img/control_inizialized.png" width="75%" alt="Control Inicializado">
+
+> 🎥 **Video de Evidencia:** Puedes verificar el desempeño en la pista libre visualizando el siguiente video: [Evidencia Pista Libre (x4)](Videos/EvidenciaCircuitoF1tenth_x4.mp4)
+
 ---
 
 ### Escenario 2: Pista con 5 Obstáculos Estáticos
@@ -245,6 +248,7 @@ cd ~/F1Tenth_ws
 source install/setup.bash
 ros2 run f1tenth_reactive_racer reactive_node
 ```
+> 🎥 **Video de Evidencia:** Puedes verificar la evasión de los 5 obstáculos estáticos visualizando el siguiente video: [Evidencia Obstáculos Estáticos (x4)](Videos/CircuitCompletedObstX4.mp4)
 
 ---
 
@@ -344,3 +348,5 @@ cd ~/F1Tenth_ws
 source install/setup.bash
 ros2 run f1tenth_reactive_racer reactive_node
 ```
+
+> 🎥 **Video de Evidencia:** Puedes verificar el comportamiento evadiendo los obstáculos dinámicos visualizando el siguiente video: [Evidencia Obstáculos Dinámicos (x4)](Videos/CircuitCompletedOppX4.mp4)
