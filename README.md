@@ -347,4 +347,4 @@ source install/setup.bash
 ros2 run f1tenth_reactive_racer reactive_node
 ```
 
-> 🎥 **Videos Demostrativos:** Puedes verificar el comportamiento del proyecto en el siguiente enlace: https://drive.google.com/drive/folders/1IwqtTJYY6gRoNsIEeE8Eppk4jxy3uuDi?usp=sharing
+🎥 **Videos Demostrativos:** Puedes verificar el comportamiento del proyecto en el siguiente enlace: https://drive.google.com/drive/folders/1IwqtTJYY6gRoNsIEeE8Eppk4jxy3uuDi?usp=sharing
