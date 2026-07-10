@@ -167,6 +167,7 @@ ros2 run f1tenth_reactive_racer reactive_node
 ```
 <img src="img/control_inizialized.png" width="75%" alt="Control Inicializado">
 
+> 🎥 **Video Demostrativo:** https://youtu.be/1JDJKouoiZk
 
 ---
 
@@ -247,6 +248,7 @@ cd ~/F1Tenth_ws
 source install/setup.bash
 ros2 run f1tenth_reactive_racer reactive_node
 ```
+> 🎥 **Video Demostrativo:** https://youtu.be/ZlIY-YIXxtc
 
 ---
 
@@ -347,4 +349,4 @@ source install/setup.bash
 ros2 run f1tenth_reactive_racer reactive_node
 ```
 
-🎥 **Videos Demostrativos:** Puedes verificar el comportamiento del proyecto en el siguiente enlace: https://drive.google.com/drive/folders/1IwqtTJYY6gRoNsIEeE8Eppk4jxy3uuDi?usp=sharing
+> 🎥 **Video Demostrativo:** https://youtu.be/V0E-o34HTgM
