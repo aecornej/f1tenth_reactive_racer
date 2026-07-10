@@ -167,7 +167,7 @@ ros2 run f1tenth_reactive_racer reactive_node
 ```
 <img src="img/control_inizialized.png" width="75%" alt="Control Inicializado">
 
-> 🎥 **Video Demostrativo:** https://youtu.be/1JDJKouoiZk
+> 🎥 **Video Demostrativo:** https://youtu.be/qOECdETYe0Y
 
 ---
 
